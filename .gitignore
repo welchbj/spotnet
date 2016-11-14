@@ -1,0 +1,23 @@
+# Python
+__pycache__
+*.py[co]
+
+# JS
+frontend/bower_components/*
+frontend/node_modules/*
+
+# builds
+frontend/tmp/*
+frontend/dist/*
+frontend/vendor/semantic/dist/*
+!frontend/vendor/semantic/dist/themes/default/assets/*
+!frontend/vendor/semantic/dist/semantic.css
+!frontend/vendor/semantic/dist/semantic.js
+
+# misc
+.sass-cache
+connect.lock
+coverage/*
+libpeerconnection.log
+npm-debug.log*
+testem.log
