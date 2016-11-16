@@ -13,5 +13,5 @@ indent_size = 4
 [*.rst]
 indent_size = 4
 
-[*.{hbs,rst,txt}]
+[*.{hbs,rst,txt,variables,overrides,css}]
 insert_final_newline = false

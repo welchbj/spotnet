@@ -71,6 +71,18 @@ Note that this project comes with a built JS/CSS dist of our `Semantic UI`_ fron
     $ cd semantic
     $ gulp build
 
+====================
+Authentication Flows
+====================
+
+The Frontend
+------------
+TODO
+
+The Backend
+-----------
+TODO
+
 =======
 License
 =======
