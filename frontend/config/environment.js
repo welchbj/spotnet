@@ -6,6 +6,10 @@ module.exports = function(environment) {
     environment: environment,
     rootURL: '/',
     locationType: 'auto',
+
+    SPOTIFY_AUTH_BASE_URL: 'https://accounts.spotify.com/authorize',
+    SPOTIFY_SCOPE: 'playlist-read-private user-library-read',
+
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
@@ -22,6 +26,20 @@ module.exports = function(environment) {
       // when it is created
     }
   };
+
+  try {
+    // Put the following in your local_config.js file:
+    // exports.config = {
+    //   SPOTIFY_CLIENT_ID: 'YOUR SPOTIFY CLIENT ID',
+    //   SPOTIFY_AUTH_REDIRECT_URL: 'YOUR SPOTIFY AUTH REDIRECT URL'
+    // };
+    var local = require('./local_config.js');
+    Object.keys(local.config).forEach(function(key) {
+      ENV[key] = local.config[key];
+    });
+  } catch(err) {
+    console.log('local_config.js file not found.');
+  }
 
   if (environment === 'development') {
     // ENV.APP.LOG_RESOLVER = true;

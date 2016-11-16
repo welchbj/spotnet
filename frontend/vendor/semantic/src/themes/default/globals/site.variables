@@ -6,19 +6,18 @@
        Fonts
 --------------------*/
 
-@fontName          : 'Lato';
+@fontName          : 'PT Sans Caption';
 @fontSmoothing     : antialiased;
 
-@headerFont        : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
-@pageFont          : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+@headerFont        : @fontName, sans-serif;
+@pageFont          : @fontName, sans-serif;
 
 @googleFontName    : @fontName;
 @importGoogleFonts : true;
 @googleFontSizes   : '400,700,400italic,700italic';
-@googleSubset      : 'latin';
 
 @googleProtocol    : 'https://';
-@googleFontRequest : '@{googleFontName}:@{googleFontSizes}&subset=@{googleSubset}';
+@googleFontRequest : '@{googleFontName}:@{googleFontSizes}';
 
 /*-------------------
       Base Sizes
@@ -195,7 +194,7 @@
 @orange           : #F2711C;
 @yellow           : #FBBD08;
 @olive            : #B5CC18;
-@green            : #21BA45;
+@green            : #1ED760;
 @teal             : #00B5AD;
 @blue             : #2185D0;
 @violet           : #6435C9;
@@ -210,7 +209,7 @@
 @lightOrange      : #FF851B;
 @lightYellow      : #FFE21F;
 @lightOlive       : #D9E778;
-@lightGreen       : #2ECC40;
+@lightGreen       : #1ED760;
 @lightTeal        : #6DFFFF;
 @lightBlue        : #54C8FF;
 @lightViolet      : #A291FB;
@@ -232,7 +231,7 @@
 @orangeBackground : #FFEDDE;
 @yellowBackground : #FFF8DB;
 @oliveBackground  : #FBFDEF;
-@greenBackground  : #E5F9E7;
+@greenBackground  : #1ED760;
 @tealBackground   : #E1F7F7;
 @blueBackground   : #DFF0FF;
 @violetBackground : #EAE7FF;
