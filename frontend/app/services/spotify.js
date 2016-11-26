@@ -15,12 +15,6 @@ export default Ember.Service.extend({
   tokens: storageFor('tokens'),
 
   /**
-   * Returns whether the service thinks it holds a valid
-   * authentication token.
-   */
-  isAuthenticated: false,
-
-  /**
    * The in-memory Spotify API access token.
    */
   accessToken: null,
@@ -30,6 +24,14 @@ export default Ember.Service.extend({
    * spotify-web-api-js package.
    */
   client: null,
+
+  /**
+   * Computed property that returns whether the service thinks
+   * it holds a valid authentication token.
+   */
+  isAuthenticated: Ember.computed('accessToken', function() {
+    return this.get('accessToken') !== null;
+  }),
 
   init() {
     this._super(...arguments);
@@ -44,8 +46,7 @@ export default Ember.Service.extend({
   setToken(token) {
     this.setProperties({
       'accessToken': token,
-      'tokens.spotifyAccessToken': token,
-      'isAuthenticated': token !== null
+      'tokens.spotifyAccessToken': token
     });
 
     this.get('client').setAccessToken(token);
@@ -59,6 +60,10 @@ export default Ember.Service.extend({
     this.setToken(this.get('tokens.spotifyAccessToken'));
   },
 
+  /**
+   * Load the Spotify Web API client, setting its access token if we have
+   * one already loaded in-memory.
+   */
   loadClient() {
     const client = new SpotifyClient();
     client.setPromiseImplementation(Ember.RSVP.Promise);
