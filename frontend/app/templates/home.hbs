@@ -9,8 +9,38 @@
   </div>
 
   <div class="ui attached segment">
-    {{!-- TODO: plan is to put tabbed view here, containing outlet --}}
-    {{outlet}}
+    <div class="ui top attached tabular menu">
+      <div class="{{if (eq activeTab 'songs') 'active'}} item tab-item">
+        {{#link-to "home.songs"}}
+        Saved Songs
+        <i class="ui music icon"></i>
+        {{/link-to}}
+      </div>
+
+      <div class="{{if (eq activeTab 'playlists') 'active'}} item tab-item">
+        {{#link-to "home.playlists"}}
+        Playlists
+        <i class="ui list icon"></i>
+        {{/link-to}}
+      </div>
+
+      <div class="{{if (eq activeTab 'connected') 'active'}} item tab-item">
+        {{#link-to "home.connected"}}
+        Connected Nodes
+        <i class="ui share alternate icon"></i>
+        {{/link-to}}
+      </div>
+
+      <div class="{{if (eq activeTab 'idle') 'active'}} item tab-item">
+        {{#link-to "home.idle"}}
+        Idle Nodes
+        <i class="ui wifi icon"></i>
+        {{/link-to}}
+      </div>
+    </div>
+    <div class="ui bottom attached segment">
+      {{outlet}}
+    </div>
   </div>
 
 </div>

@@ -10,6 +10,16 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
    */
   model() {
     return this.get('spotify').getMe();
+  },
+
+  /**
+   * Redirect to home/songs nested route if the home route is accessed
+   * directly, so that we are always in one of the tabs of the control panel.
+   */
+  afterModel(model, transition) {
+    if (transition.targetName === 'home.index') {
+      this.transitionTo('home.songs');
+    }
   }
 
 });

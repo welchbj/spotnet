@@ -8,7 +8,12 @@ const Router = Ember.Router.extend({
 
 Router.map(function() {
   this.route('auth');
-  this.route('home');
+  this.route('home', function() {
+    this.route('songs');
+    this.route('playlists');
+    this.route('connected');
+    this.route('idle');
+  });
   this.route('disconnect');
 });
 
