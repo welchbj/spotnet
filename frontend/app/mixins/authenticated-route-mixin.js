@@ -9,8 +9,11 @@ export default Ember.Mixin.create({
    */
   beforeModel() {
     if (!this.get('spotify.isAuthenticated')) {
-      // TODO: need message about unauthenticated status
-      this.transitionTo('index');
+      this.transitionTo('index', {
+        queryParams: {
+          msgId: 'NEED_TO_CONNECT_ACCOUNT'
+        }
+      });
     }
   }
 

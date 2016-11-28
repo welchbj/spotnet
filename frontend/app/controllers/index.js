@@ -8,6 +8,11 @@ export default Ember.Controller.extend({
   msgId: null,
 
   MSG_MAPPING: {
+    NEED_TO_CONNECT_ACCOUNT: {
+      content: 'Whoops! You need to connect your Spotify account before ' +
+               'entering the Spotnet app.',
+      type: 'warning'
+    },
     DISCONNECTED_ACCOUNT: {
       content: 'Your account has been successfully disconnected.',
       type: 'success'
