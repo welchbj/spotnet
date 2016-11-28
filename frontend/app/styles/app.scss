@@ -1,12 +1,14 @@
 $spotnet-green: #B3FFB3;
 $white: #FFFFFF;
 
-.global {
-  margin-top: 10vh;
-}
-
 body {
   background-color: $spotnet-green;
+}
+
+.global {
+  padding-top: 10vh;
+  height: 100%;
+  width: 100%;
 }
 
 .centered-message {
