@@ -1,1 +1,16 @@
-{{outlet}}
+<div class="ui container">
+
+  <h4 class="ui top attached header">
+    Spotnet Control Panel
+  </h4>
+
+  <div class="ui attached segment">
+    {{user-info-block user=model}}
+  </div>
+
+  <div class="ui attached segment">
+    {{!-- TODO: plan is to put tabbed view here, containing outlet --}}
+    {{outlet}}
+  </div>
+
+</div>

@@ -1,0 +1,19 @@
+<div class="ui grid">
+  <div class="centered row">
+    <img class="ui circular image" src="{{imageUrl}}">
+  </div>
+  <div class="centered row">
+    <p>
+      Currently connected to
+      <a href="{{spotifyProfileUrl}}" target="_blank">{{userName}}'s</a>
+      premium account.
+    </p>
+  </div>
+  <div class="centered row">
+    {{#link-to "disconnect"}}
+    <div class="ui basic button">
+      Disconnect this account
+    </div>
+    {{/link-to}}
+  </div>
+</div>

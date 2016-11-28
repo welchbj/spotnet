@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import SpotifyClient from 'npm:spotify-web-api-js';
 import { storageFor } from 'ember-local-storage';
 
 /**
@@ -8,6 +7,12 @@ import { storageFor } from 'ember-local-storage';
  * Web API.
  */
 export default Ember.Service.extend({
+
+  /**
+   * Ajax service for making backend requests to the
+   * Spotify Web API.
+   */
+  ajax: Ember.inject.service(),
 
   /**
    * Local storage for access tokens.
@@ -20,12 +25,6 @@ export default Ember.Service.extend({
   accessToken: null,
 
   /**
-   * The client for interacting with the Spotify Web API, from the
-   * spotify-web-api-js package.
-   */
-  client: null,
-
-  /**
    * Computed property that returns whether the service thinks
    * it holds a valid authentication token.
    */
@@ -35,7 +34,6 @@ export default Ember.Service.extend({
 
   init() {
     this._super(...arguments);
-    this.loadClient();
     this.loadToken();
   },
 
@@ -48,8 +46,6 @@ export default Ember.Service.extend({
       'accessToken': token,
       'tokens.spotifyAccessToken': token
     });
-
-    this.get('client').setAccessToken(token);
   },
 
   /**
@@ -61,19 +57,24 @@ export default Ember.Service.extend({
   },
 
   /**
-   * Load the Spotify Web API client, setting its access token if we have
-   * one already loaded in-memory.
+   * Returns a promise from the Spotify Web API /me endpoint.
    */
-  loadClient() {
-    const client = new SpotifyClient();
-    client.setPromiseImplementation(Ember.RSVP.Promise);
+  getMe() {
+    return this.get('ajax').request('/me');
+  },
 
-    const token = this.get('token');
-    if (token !== null) {
-      client.setAccessToken(token);
-    }
+  /**
+   * TODO
+   */
+  getPlaylists() {
+    // TODO
+  },
 
-    this.set('client', client);
+  /**
+   * TODO
+   */
+  getTracks(pageNumber) {
+    // TODO
   }
 
 });

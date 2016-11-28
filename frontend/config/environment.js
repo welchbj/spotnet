@@ -9,6 +9,8 @@ module.exports = function(environment) {
 
     SPOTIFY_AUTH_BASE_URL: 'https://accounts.spotify.com/authorize',
     SPOTIFY_SCOPE: 'playlist-read-private user-library-read',
+    SPOTIFY_WEB_API_HOST: 'https://api.spotify.com',
+    SPOTIFY_WEB_API_NAMESPACE: '/v1',
 
     EmberENV: {
       FEATURES: {
