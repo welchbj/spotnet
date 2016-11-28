@@ -9,7 +9,7 @@ export default Ember.Route.extend({
           queryParams: {
             msgId: 'ERROR_NETWORK_REQUEST'
           }
-        })
+        });
       }
     }
   }
