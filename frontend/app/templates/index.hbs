@@ -1,15 +1,24 @@
-<div class="ui container grid">
-  <div class="centered row">
-    <h1 class="ui header">
-      Welcome to Spotnet
-    </h1>
-  </div>
-  <div class="centered row">
-    <a class="ui animated fade basic button" href="{{spotifyAuthRequestUrl}}">
-      <div class="visible content">Link your account</div>
-      <div class="hidden content">
-        <i class="exchange icon"></i>
+<div class="ui container">
+  <div class="ui {{if msg "attached"}} segment">
+    <div class="ui grid">
+      <div class="centered row">
+        <h1 class="ui header">
+          Welcome to Spotnet
+        </h1>
       </div>
-    </a>
+      <div class="centered row">
+        <a class="ui animated fade basic button" href="{{spotifyAuthRequestUrl}}">
+          <div class="visible content">Link your account</div>
+          <div class="hidden content">
+            <i class="exchange icon"></i>
+          </div>
+        </a>
+      </div>
+    </div>
   </div>
+  {{#if msg}}
+  <div class="ui bottom centered-message attached {{msgColor}} message">
+    {{msg}}
+  </div>
+  {{/if}}
 </div>
