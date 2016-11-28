@@ -57,6 +57,14 @@ export default Ember.Service.extend({
   },
 
   /**
+   * Remove the current Spotify access token from both in-memory
+   * and local storage, setting it to null.
+   */
+  invalidateToken() {
+    this.setToken(null);
+  },
+
+  /**
    * Returns a promise from the Spotify Web API /me endpoint.
    */
   getMe() {
