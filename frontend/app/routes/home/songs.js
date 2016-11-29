@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import ENV from '../../config/environment';
 
 export default Ember.Route.extend({
 
@@ -15,7 +16,8 @@ export default Ember.Route.extend({
   },
 
   model(params) {
-    return this.get('spotify').getTracks(params.page - 1, 10);
+    return this.get('spotify').getTracks(params.page - 1,
+                                         ENV.ENTRIES_PER_PAGE);
   }
 
 });

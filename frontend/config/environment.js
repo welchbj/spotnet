@@ -12,6 +12,8 @@ module.exports = function(environment) {
     SPOTIFY_WEB_API_HOST: 'https://api.spotify.com',
     SPOTIFY_WEB_API_NAMESPACE: '/v1',
 
+    ENTRIES_PER_PAGE: 10,
+
     EmberENV: {
       FEATURES: {
         // Here you can enable experimental features on an ember canary build

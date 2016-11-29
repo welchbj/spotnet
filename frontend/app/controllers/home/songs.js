@@ -1,4 +1,6 @@
 import Ember from 'ember';
+import ENV from '../../config/environment';
+
 
 export default Ember.Controller.extend({
 
@@ -10,17 +12,11 @@ export default Ember.Controller.extend({
   page: 1,
 
   /**
-   * Static value set to 10.
-   */
-  entriesPerPage: 10,
-
-  /**
    * The total number of pages available for querying.
    */
-  numPages: Ember.computed('model', 'entriesPerPage', function() {
+  numPages: Ember.computed('model', function() {
     const numEntries = this.get('model').total;
-    const entriesPerPage = this.get('entriesPerPage');
-    return Math.ceil(numEntries / entriesPerPage);
+    return Math.ceil(numEntries / ENV.ENTRIES_PER_PAGE);
   })
 
 });
