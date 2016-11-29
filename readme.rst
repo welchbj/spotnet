@@ -98,15 +98,15 @@ Since the Spotnet web client provides a Spotify interface independent from the b
 
 2. User is redirected to the Spotify authentication service.
 
-    + If user accepts to give your application access, the flows continues.
+   * If user accepts to give your application access, the flows continues.
 
-    + If user declines to give your application access, the flow stops.
+   * If user declines to give your application access, the flow stops.
 
 3. User is redirected to /auth route, where their token is parsed from the redirected URL hash.
 
-    + If /auth route handler can properly parse the returned access token, it loads it into memory and writes it to local storage.
+   * If /auth route handler can properly parse the returned access token, it loads it into memory and writes it to local storage.
 
-    + If /auth route handler cannot properly parse the returned URL parameters, it redirects to the index route and the authentication flow has ended.
+   * If /auth route handler cannot properly parse the returned URL parameters, it redirects to the index route and the authentication flow has ended.
 
 4. User is redirected to /home route, upon which their access token is used to make requests and populate the interface with data.
 
