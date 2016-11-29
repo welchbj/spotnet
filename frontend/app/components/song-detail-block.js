@@ -30,6 +30,17 @@ export default Ember.Component.extend({
   albumImageUrl: Ember.computed('song', function() {
     const imageObj = this.get('song').track.album.images[0];
     return imageObj === undefined  ? null : imageObj.url;
+  }),
+
+  /**
+   * Since playlists can contain songs that were originally on someone's
+   * local computer (and not playable from the Spotify service), this computed
+   * property serves to indicate whether a song is playable via Spotify.
+   * Songs not playable via spotify cannot be added to a queue.
+   */
+  isSpotifySong: Ember.computed('songUrl', function() {
+    const songUrl = this.get('songUrl');
+    return songUrl !== null && songUrl !== undefined;
   })
 
 });
