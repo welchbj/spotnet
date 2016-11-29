@@ -1,3 +1,10 @@
+<div class="ui basic segment">
+  <div class="ui divided list">
+  {{#each playlists as |playlist|}}
+    {{playlist-detail-block playlist=playlist}}
+  {{/each}}
+  </div>
+</div>
 <div class="ui basic center aligned segment">
   <div class="ui container">
     <p>Page {{page}} of {{numPages}}</p>
@@ -7,12 +14,5 @@
     <div class="ui basic icon button {{if (eq page numPages) 'disabled'}}" {{action 'incPage'}}>
       <i class="ui angle right icon"></i>
     </div>
-  </div>
-</div>
-<div class="ui basic segment">
-  <div class="ui divided list">
-  {{#each playlists as |playlist|}}
-    {{playlist-detail-block playlist=playlist}}
-  {{/each}}
   </div>
 </div>
