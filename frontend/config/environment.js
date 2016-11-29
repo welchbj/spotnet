@@ -12,7 +12,8 @@ module.exports = function(environment) {
     SPOTIFY_WEB_API_HOST: 'https://api.spotify.com',
     SPOTIFY_WEB_API_NAMESPACE: '/v1',
 
-    ENTRIES_PER_PAGE: 10,
+    NUM_SONGS_PER_PAGE: 10,
+    NUM_PLAYLISTS_PER_PAGE: 5,
 
     EmberENV: {
       FEATURES: {

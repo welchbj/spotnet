@@ -15,7 +15,7 @@ export default Ember.Controller.extend({
    */
   numPages: Ember.computed('model', function() {
     const numEntries = this.get('model').total;
-    return Math.ceil(numEntries / ENV.ENTRIES_PER_PAGE);
+    return Math.ceil(numEntries / ENV.NUM_SONGS_PER_PAGE);
   })
 
 });

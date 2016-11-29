@@ -17,7 +17,7 @@ export default Ember.Route.extend({
 
   model(params) {
     return this.get('spotify').getTracks(params.page - 1,
-                                         ENV.ENTRIES_PER_PAGE);
+                                         ENV.NUM_SONGS_PER_PAGE);
   }
 
 });

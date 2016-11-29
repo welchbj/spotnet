@@ -17,7 +17,7 @@ export default Ember.Route.extend({
 
   model(params) {
     return this.get('spotify').getPlaylists(params.page - 1,
-                                            ENV.ENTRIES_PER_PAGE);
+                                            ENV.NUM_PLAYLISTS_PER_PAGE);
   }
 
 });
