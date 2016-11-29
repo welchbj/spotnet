@@ -94,14 +94,17 @@ In order to access the user's saved songs and playlists, we require access to th
 
 Since the Spotnet web client provides a Spotify interface independent from the backend Raspberry Pi network, we opted to use Spotify's `Implicit Grant`_ authentication flow. The authentication flow managed by Spotnet is fairly simple, and can be broken down into a few steps:
 
-1. User clicks on "Link your account" button on Spotnet landing page (the index route).
-2. User is redirected to the https://accounts.spotify.com/authorize?client_id=... url.
+1) User clicks on "Link your account" button on Spotnet landing page (the index route).
+
+2) User is redirected to the https://accounts.spotify.com/authorize URL.
     a) If user accepts to give your application access, the flows continues.
     b) If user declines to give your application access, the flow stops.
-3. User is redirected to /auth route, where their token is parsed from the redirected URL hash.
+
+3) User is redirected to /auth route, where their token is parsed from the redirected URL hash.
     a) If /auth route handler can properly parse the returned access token, it loads it into memory and writes it to local storage.
     b) If /auth route handler cannot properly parse the returned URL parameters, it redirects to the index route and the authentication flow has ended.
-4. User is redirected to /home route, upon which their access token is used to make requests and populate the interface with data.
+
+4) User is redirected to /home route, upon which their access token is used to make requests and populate the interface with data.
 
 The access token is written to the browser's local storage in order to survive page refresh. At any time from the /home route, the user has access to the /disconnect route through. Accessing the /disconnect route invalidates the current access token (both in-memory and in local storage) and redirects the user back to the index route.
 
