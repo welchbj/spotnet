@@ -21,6 +21,10 @@ export default Ember.Component.extend({
     return this.get('playlist').tracks.total;
   }),
 
+  playlistOwnerId: Ember.computed('playlist', function() {
+    return this.get('playlist').owner.id;
+  }),
+
   playlistId: Ember.computed('playlist', function() {
     return this.get('playlist').id;
   })

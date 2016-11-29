@@ -13,6 +13,7 @@ Router.map(function() {
     this.route('playlists');
     this.route('connected');
     this.route('idle');
+    this.route('playlist', { path: '/playlist/:owner_id/:playlist_id' });
   });
   this.route('disconnect');
 });

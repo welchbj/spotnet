@@ -28,7 +28,8 @@ export default Ember.Component.extend({
   }),
 
   albumImageUrl: Ember.computed('song', function() {
-    return this.get('song').track.album.images[0].url;
+    const imageObj = this.get('song').track.album.images[0];
+    return imageObj === undefined  ? null : imageObj.url;
   })
 
 });

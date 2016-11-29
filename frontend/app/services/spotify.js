@@ -82,10 +82,26 @@ export default Ember.Service.extend({
   },
 
   /**
-   * TODO
+   * Get metadata information about a playlist. This will make a request
+   * to get the following fields from the playlist object:
+   *    description
+   *    followers
+   *    name
    */
-  getTracksFromPlaylist() {
-    // TODO
+  getPlaylistMetadata(userId, playlistId) {
+    const endpoint = `/users/${userId}/playlists/${playlistId}`;
+    const params = '?fields=description,followers,name';
+    return this.get('ajax').request(endpoint + params);
+  },
+
+  /**
+   * Get the tracks for a user's playlist, indicating the page to get
+   * as well as the number of entries which should be on each page.
+   */
+  getTracksFromPlaylist(userId, playlistId, page, tracksPerPage) {
+    const endpoint = `/users/${userId}/playlists/${playlistId}/tracks`;
+    const params = `?offset=${page * tracksPerPage}&limit=${tracksPerPage}`;
+    return this.get('ajax').request(endpoint + params);
   },
 
   /**
