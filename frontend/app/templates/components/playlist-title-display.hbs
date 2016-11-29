@@ -1,0 +1,19 @@
+<div class="ui basic clearing segment">
+  {{#link-to 'home.playlists'}}
+  <div class="ui left floated basic button">
+    <i class="chevron circle left icon"></i>
+    Back to list
+  </div>
+  {{/link-to}}
+</div>
+<div class="ui basic center aligned segment">
+  <h2 class="ui header">
+    {{name}}
+    <div class="sub header">
+      {{#if description}}<p>{{description}}</p>{{/if}}
+      <p>
+        {{numSongs}} songs | {{numFollowers}} followers
+      </p>
+    </div>
+  </h2>
+</div>

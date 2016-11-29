@@ -10,9 +10,12 @@ export default Ember.Controller.extend({
    */
   page: 1,
 
-  numPages: Ember.computed('model', function() {
-    const numEntries = this.get('model').songs.total;
-    return Math.ceil(numEntries / ENV.NUM_SONGS_PER_PAGE);
+  numSongs: Ember.computed('model', function() {
+    return this.get('model').songs.total;
+  }),
+
+  numPages: Ember.computed('numSongs', function() {
+    return Math.ceil(this.get('numSongs') / ENV.NUM_SONGS_PER_PAGE);
   })
 
 });
