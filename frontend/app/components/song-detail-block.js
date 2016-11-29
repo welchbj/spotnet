@@ -28,7 +28,6 @@ export default Ember.Component.extend({
   }),
 
   albumImageUrl: Ember.computed('song', function() {
-    console.log(this.get('song'));
     return this.get('song').track.album.images[0].url;
   })
 
