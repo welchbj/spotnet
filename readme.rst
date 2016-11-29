@@ -57,9 +57,9 @@ Make sure you have a recent version of Node.js installed and on your system's pa
 
 There are a couple of configuration parameters you must specify in order to integrate with the `Spotify Web API`_ from the frontend. In order to avoid versioning client keys and specific user settings, you must create a file frontend/config/local_config.js. In this file, you must specify the following variables within a JavaScript hash:
 
-    - SPOTIFY_CLIENT_ID: This is the client ID that will be indicated in your Spotify application page.
+- SPOTIFY_CLIENT_ID: This is the client ID that will be indicated in your Spotify application page.
 
-    - SPOTIFY_AUTH_REDIRECT_URL: This is the full /auth route, which the Spotify authentication service will redirect to. Note that you need to whitelist this URL within your Spotify application page.
+- SPOTIFY_AUTH_REDIRECT_URL: This is the full /auth route, which the Spotify authentication service will redirect to. Note that you need to whitelist this URL within your Spotify application page.
 
 A correctly written local_config.js file for development would look similar to::
 
@@ -92,16 +92,16 @@ The Frontend
 ------------
 In order to access the user's saved songs and playlists, we require access to their information via the `Spotify Web API`_. Note that this is a different API than what is used in the backend to access audio playback, and is used to gather song and playlist metadata.
 
-Since the Spotnet web client provides a Spotify interface independent from the backend Raspberry Pi network, we opted to use Spotify's `Implicit Grant`_ authentication flow. The authentication flow managed by Spotnet is fairly simple, and can be broken down into a few steps::
+Since the Spotnet web client provides a Spotify interface independent from the backend Raspberry Pi network, we opted to use Spotify's `Implicit Grant`_ authentication flow. The authentication flow managed by Spotnet is fairly simple, and can be broken down into a few steps:
 
-    1. User clicks on "Link your account" button on Spotnet landing page (the index route).
-    2. User is redirected to the https://accounts.spotify.com/authorize?client_id=... url.
-        a) If user accepts to give your application access, the flows continues.
-        b) If user declines to give your application access, the flow stops.
-    3. User is redirected to /auth route, where their token is parsed from the redirected URL hash.
-        a) If /auth route handler can properly parse the returned access token, it loads it into memory and writes it to local storage.
-        b) If /auth route handler cannot properly parse the returned URL parameters, it redirects to the index route and the authentication flow has ended.
-    4. User is redirected to /home route, upon which their access token is used to make requests and populate the interface with data.
+1. User clicks on "Link your account" button on Spotnet landing page (the index route).
+2. User is redirected to the https://accounts.spotify.com/authorize?client_id=... url.
+    a) If user accepts to give your application access, the flows continues.
+    b) If user declines to give your application access, the flow stops.
+3. User is redirected to /auth route, where their token is parsed from the redirected URL hash.
+    a) If /auth route handler can properly parse the returned access token, it loads it into memory and writes it to local storage.
+    b) If /auth route handler cannot properly parse the returned URL parameters, it redirects to the index route and the authentication flow has ended.
+4. User is redirected to /home route, upon which their access token is used to make requests and populate the interface with data.
 
 The access token is written to the browser's local storage in order to survive page refresh. At any time from the /home route, the user has access to the /disconnect route through. Accessing the /disconnect route invalidates the current access token (both in-memory and in local storage) and redirects the user back to the index route.
 
