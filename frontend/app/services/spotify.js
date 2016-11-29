@@ -72,16 +72,25 @@ export default Ember.Service.extend({
   },
 
   /**
+   * Get the user's playlists, indicating the page of the paginated list
+   * of playlists to get and the the number of playlists on each page.
+   */
+  getPlaylists(page, playlistsPerPage) {
+    const endpoint = '/me/playlists?offset=' + (page * playlistsPerPage) +
+                     '&limit=' + playlistsPerPage;
+    return this.get('ajax').request(endpoint);
+  },
+
+  /**
    * TODO
    */
-  getPlaylists() {
+  getTracksFromPlaylist() {
     // TODO
   },
 
   /**
-   * Get the user's saved tracks, indicating the page
-   * of the paginated list of songs to get and the
-   * number of tracks on each page.
+   * Get the user's saved tracks, indicating the page of the paginated list
+   * of songs to get and the number of tracks on each page.
    */
   getTracks(page, tracksPerPage) {
     const endpoint = '/me/tracks?offset=' + (page * tracksPerPage) +
