@@ -2,6 +2,10 @@
 Spotnet
 *******
 
+..image:: ./frontend/public/assets/spotnet-logo.svg
+    :alt: Spotnet
+    :align: center
+
 .. contents::
     :local:
     :depth: 1
