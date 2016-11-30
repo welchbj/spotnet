@@ -95,16 +95,6 @@ export default Ember.Service.extend({
     const endpoint = `/users/${userId}/playlists/${playlistId}/tracks`;
     const params = `?offset=${page * tracksPerPage}&limit=${tracksPerPage}`;
     return this.get('ajax').request(endpoint + params);
-  },
-
-  /**
-   * Get the user's saved tracks, indicating the page of the paginated list
-   * of songs to get and the number of tracks on each page.
-   */
-  getTracks(page, tracksPerPage) {
-    const endpoint = '/me/tracks?offset=' + (page * tracksPerPage) +
-                     '&limit=' + tracksPerPage;
-    return this.get('ajax').request(endpoint);
   }
 
 });
