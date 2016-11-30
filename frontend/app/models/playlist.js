@@ -22,6 +22,4 @@ export default Model.extend({
 
   spotifyUri: attr('string'),
 
-  tracks: hasMany('track', { inverse: null })
-
 });

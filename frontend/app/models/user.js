@@ -26,10 +26,6 @@ export default Model.extend({
 
   hasPremium: attr('boolean'),
 
-  spotifyUri: attr('string'),
-
-  savedTracks: hasMany('track', { inverse: null }),
-
-  playlists: hasMany('playlist', { inverse: null })
+  spotifyUri: attr('string')
 
 });
