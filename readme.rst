@@ -2,7 +2,7 @@
 Spotnet
 *******
 
-..image:: ./frontend/public/assets/spotnet-logo.svg
+.. image:: ./frontend/public/assets/spotnet-logo.svg
     :alt: Spotnet
     :align: center
 
