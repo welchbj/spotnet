@@ -1,12 +1,14 @@
 <div class="ui grid">
+  {{#if user.imageUrl}}
   <div class="centered row">
-    <img class="ui circular image" src="{{imageUrl}}">
+    <img class="ui circular image" src="{{user.imageUrl}}">
   </div>
+  {{/if}}
   <div class="centered row">
     <p>
-      Currently connected to
-      <a href="{{spotifyProfileUrl}}" target="_blank">{{userName}}'s</a>
-      premium account.
+      Currently connected to the premium account of
+      <a href="{{user.spotifyUrl}}" target="_blank">{{user.displayName}}</a>,
+      who has {{user.numFollowers}} followers. Wow!
     </p>
   </div>
   <div class="centered row">

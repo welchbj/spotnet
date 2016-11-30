@@ -16,8 +16,6 @@ export default Model.extend({
 
   birthdate: attr('date'),
 
-  country: attr('string'),
-
   email: attr('string'),
 
   spotifyUrl: attr('string'),

@@ -10,6 +10,12 @@ export default DS.JSONAPIAdapter.extend({
 
   namespace: ENV.SPOTIFY_WEB_API_NAMESPACE,
 
+  baseUrl: Ember.computed('host', 'namespace', function() {
+    const host = this.get('host');
+    const namespace = this.get('namespace');
+    return `${host}${namespace}`;
+  }),
+
   headers: Ember.computed('spotify.accessToken', {
     get() {
       let headers = {};

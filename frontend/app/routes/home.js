@@ -9,7 +9,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
    * Get the user's information.
    */
   model() {
-    return this.get('spotify').getMe();
+    return this.get('store').findRecord('user', 'dummy string');
   },
 
   /**

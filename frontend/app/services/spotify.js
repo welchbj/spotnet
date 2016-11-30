@@ -65,13 +65,6 @@ export default Ember.Service.extend({
   },
 
   /**
-   * Returns a promise from the Spotify Web API /me endpoint.
-   */
-  getMe() {
-    return this.get('ajax').request('/me');
-  },
-
-  /**
    * Get the user's playlists, indicating the page of the paginated list
    * of playlists to get and the the number of playlists on each page.
    */
