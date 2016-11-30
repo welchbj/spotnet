@@ -6,8 +6,6 @@ export default DS.JSONAPISerializer.extend({
    * Normalize the response from the Spotify Web API's /me endpoint.
    */
   normalizeFindRecordResponse(store, primaryModelClass, payload, id, requestType) {
-    const baseUrl = store.adapterFor('application').get('baseUrl');
-
     return {
       data: {
 
@@ -25,22 +23,6 @@ export default DS.JSONAPISerializer.extend({
           imageUrl: (payload.images.length > 0) ? payload.images[0].url : null,
           hasPremium: payload.product === 'premium',
           spotifyUri: payload.uri
-
-        },
-
-        relationships: {
-
-          savedTracks: {
-            links: {
-              related: `${baseUrl}/me/tracks`
-            }
-          },
-
-          playlists: {
-            links: {
-              related: '${baseUrl}/me/playlists'
-            }
-          }
 
         }
       }
