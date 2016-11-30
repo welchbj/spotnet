@@ -14,7 +14,7 @@ export default Ember.Controller.extend({
    * The total number of pages available for querying.
    */
   numPages: Ember.computed('model', function() {
-    const numEntries = this.get('model').total;
+    const numEntries = this.get('model').meta.numTracks;
     return Math.ceil(numEntries / ENV.NUM_SONGS_PER_PAGE);
   })
 
