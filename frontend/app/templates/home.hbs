@@ -10,6 +10,13 @@
 
   <div class="ui attached segment">
     <div class="ui top attached tabular menu">
+      <div class="{{if (eq activeTab 'search') 'active'}} item tab-item">
+        {{#link-to "home.search"}}
+        Search Songs
+        <i class="ui search icon"></i>
+        {{/link-to}}
+      </div>
+
       <div class="{{if (eq activeTab 'songs') 'active'}} item tab-item">
         {{#link-to "home.songs"}}
         Saved Songs

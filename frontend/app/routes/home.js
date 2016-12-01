@@ -18,7 +18,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
    */
   afterModel(model, transition) {
     if (transition.targetName === 'home.index') {
-      this.transitionTo('home.songs');
+      this.transitionTo('home.search');
     }
   }
 

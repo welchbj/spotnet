@@ -32,10 +32,23 @@ export default DS.JSONAPISerializer.extend({
   },
 
   normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {
-    const numTracks = payload.total;
-    let tracks = payload.items.map((item) => this.normalizeTrackObject(item.track));
+    let normalizedTracks;
+    let numTracks;
+    if ('items' in payload) {
+      normalizedTracks = payload.items.map((item) => {
+        return this.normalizeTrackObject(item.track);
+      });
+      numTracks = payload.total;
+    }
+    else {
+      normalizedTracks = payload.tracks.items.map((track) => {
+        return this.normalizeTrackObject(track);
+      });
+      numTracks = payload.tracks.total;
+    }
+
     return {
-      data: tracks,
+      data: normalizedTracks,
       meta: {
         numTracks: numTracks
       }

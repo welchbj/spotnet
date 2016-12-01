@@ -1,0 +1,17 @@
+<div class="ui center aligned basic segment">
+  <div class="ui search">
+    <div class="ui icon input">
+      {{input value=q class="prompt" type="text" placeholder="Search"}}
+    <i class="search icon"></i>
+    </div>
+  </div>
+</div>
+{{#if isSearching}}
+<div class="ui center aligned basic segment">Searching right now!</div>
+{{else if qIsEmpty}}
+<div class="ui center aligned basic segment">Search above!</div>
+{{else if noMatchingTracks}}
+<div class="ui center aligned basic segment">No results!</div>
+{{else}}
+{{paginated-song-view page=page numPages=numPages songs=model}}
+{{/if}}
