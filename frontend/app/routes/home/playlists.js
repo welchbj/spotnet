@@ -16,8 +16,13 @@ export default Ember.Route.extend({
   },
 
   model(params) {
-    return this.get('spotify').getPlaylists(params.page - 1,
-                                            ENV.NUM_PLAYLISTS_PER_PAGE);
+    const limit = ENV.NUM_PLAYLISTS_PER_PAGE;
+    const offset = (params.page - 1) * limit;
+
+    return this.get('store').query('playlist', {
+      offset: offset,
+      limit: limit
+    });
   }
 
 });

@@ -14,6 +14,8 @@ export default Model.extend({
 
   numFollowers: attr('number'),
 
+  numTracks: attr('number'),
+
   imageUrl: attr('string'),
 
   name: attr('string'),

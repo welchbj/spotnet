@@ -1,9 +1,14 @@
 <div class="right floated content">
-  {{#link-to 'home.playlist' playlistOwnerId playlistId }}
+  {{#link-to 'home.playlist' playlist.ownerId playlist.id }}
   <div class="ui basic button">View Songs</div>
   {{/link-to}}
 </div>
+{{#if playlist.imageUrl}}
+<img class="ui avatar image" src="{{playlist.imageUrl}}">
+{{else}}
+<i class="large music middle aligned icon"></i>
+{{/if}}
 <div class="content">
-  <a class="header" href="{{playlistUrl}}" target="_blank">{{playlistName}}</a>
-  <div class="description">{{numPlaylistSongs}} songs</div>
+  <a class="header" href="{{playlist.spotifyUrl}}" target="_blank">{{playlist.name}}</a>
+  <div class="description">{{playlist.numTracks}} songs</div>
 </div>

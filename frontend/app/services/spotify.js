@@ -65,16 +65,6 @@ export default Ember.Service.extend({
   },
 
   /**
-   * Get the user's playlists, indicating the page of the paginated list
-   * of playlists to get and the the number of playlists on each page.
-   */
-  getPlaylists(page, playlistsPerPage) {
-    const endpoint = '/me/playlists?offset=' + (page * playlistsPerPage) +
-                     '&limit=' + playlistsPerPage;
-    return this.get('ajax').request(endpoint);
-  },
-
-  /**
    * Get metadata information about a playlist. This will make a request
    * to get the following fields from the playlist object:
    *    description

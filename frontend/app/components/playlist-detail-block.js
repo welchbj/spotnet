@@ -5,28 +5,8 @@ export default Ember.Component.extend({
   classNames: ['item'],
 
   /**
-   * A playlist object from Spotify's Web API.
+   * A playlist model, derived from Spotify's Web API.
    */
-  playlist: null,
-
-  playlistUrl: Ember.computed('playlist', function() {
-    return this.get('playlist').external_urls.spotify;
-  }),
-
-  playlistName: Ember.computed('playlist', function() {
-    return this.get('playlist').name;
-  }),
-
-  numPlaylistSongs: Ember.computed('playlist', function() {
-    return this.get('playlist').tracks.total;
-  }),
-
-  playlistOwnerId: Ember.computed('playlist', function() {
-    return this.get('playlist').owner.id;
-  }),
-
-  playlistId: Ember.computed('playlist', function() {
-    return this.get('playlist').id;
-  })
+  playlist: null
 
 });

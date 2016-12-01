@@ -12,7 +12,7 @@ export default Ember.Controller.extend({
   page: 1,
 
   numPages: Ember.computed('model', function() {
-    const numEntries = this.get('model').total;
+    const numEntries = this.get('model').meta.numPlaylists;
     return Math.ceil(numEntries / ENV.NUM_PLAYLISTS_PER_PAGE);
   })
 
