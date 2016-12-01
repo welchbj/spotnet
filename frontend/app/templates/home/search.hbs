@@ -7,7 +7,10 @@
   </div>
 </div>
 {{#if isSearching}}
-<div class="ui center aligned basic segment">Searching right now!</div>
+<div class="ui center aligned basic segment">
+  {{spinkit-three-bounce}}
+  Searching right now!
+</div>
 {{else if qIsEmpty}}
 <div class="ui center aligned basic segment">Search above!</div>
 {{else if noMatchingTracks}}
