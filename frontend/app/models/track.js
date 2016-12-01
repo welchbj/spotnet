@@ -31,6 +31,21 @@ export default Model.extend({
   isSpotifyTrack: Ember.computed('spotifyUrl', function() {
     const url = this.get('spotifyUrl');
     return url !== null && url !== undefined;
+  }),
+
+  /**
+   * A computed property for displaying the track duration to the end user.
+   */
+  durationMinutesSeconds: Ember.computed('durationMs', function() {
+    const durationMs = this.get('durationMs');
+    if (durationMs === null) {
+      return null;
+    }
+
+    const minutes = Math.floor(durationMs / 60000);
+    const seconds = ((durationMs % 60000) / 1000).toFixed(0);
+
+    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
   })
 
 });

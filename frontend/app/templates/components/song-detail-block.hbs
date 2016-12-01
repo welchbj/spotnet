@@ -14,11 +14,9 @@
   {{else}}
   {{song.name}}
   {{/if}}
-  {{#if (or song.albumName song.artists)}}
+  {{#if descriptionText}}
   <div class="description">
-    {{if song.albumName song.albumName}}
-    {{if (and song.albumName song.artists) '|'}}
-    {{if song.artists song.artists}}
+    {{descriptionText}}
   </div>
   {{/if}}
 </div>
