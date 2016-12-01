@@ -13,7 +13,7 @@ export default DS.JSONAPISerializer.extend({
         description: ('description' in playlist) ? playlist.description : null,
         spotifyUrl: playlist.external_urls.spotify,
         numFollowers: ('followers' in playlist) ? playlist.followers.total : null,
-        numTracks: playlist.tracks.total,
+        numTracks: ('tracks' in playlist) ? playlist.tracks.total : null,
         imageUrl: playlist.images.length > 0 ? playlist.images[0].url : null,
         name: playlist.name,
         ownerId: playlist.owner.id,
@@ -31,6 +31,12 @@ export default DS.JSONAPISerializer.extend({
       meta: {
         numPlaylists: numPlaylists
       }
+    };
+  },
+
+  normalizeFindRecordResponse(store, primaryModelClass, payload, id, requestType) {
+    return {
+      data: this.normalizePlaylistObject(payload)
     };
   }
 

@@ -7,12 +7,15 @@
   {{/link-to}}
 </div>
 <div class="ui basic center aligned segment">
+  {{#if playlist.imageUrl}}
+  <img class="ui small rounded centered image" src="{{playlist.imageUrl}}">
+  {{/if}}
   <h2 class="ui header">
-    {{name}}
+    {{playlist.name}}
     <div class="sub header">
-      {{#if description}}<p>{{description}}</p>{{/if}}
+      {{#if playlist.description}}<p>{{playlist.description}}</p>{{/if}}
       <p>
-        {{numSongs}} songs | {{numFollowers}} followers
+        {{numTracks}} songs | {{playlist.numFollowers}} followers
       </p>
     </div>
   </h2>

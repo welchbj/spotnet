@@ -30,7 +30,8 @@ export default Model.extend({
    * Songs not playable via spotify cannot be added to a queue.
    */
   isSpotifyTrack: Ember.computed('spotifyUrl', function() {
-    return this.get('spotifyUrl') !== null;
+    const url = this.get('spotifyUrl');
+    return url !== null && url !== undefined;
   })
 
 });

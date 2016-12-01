@@ -3,14 +3,17 @@ import ApplicationAdapter from './application';
 export default ApplicationAdapter.extend({
 
   urlForQuery(query, modelName) {
-    const baseUrl = this.get('baseUrl');
-    let url;
+    let url = this.get('baseUrl');
 
     if (query.tracksFrom === 'me') {
-      url = `${baseUrl}/me/tracks`;
+      url += '/me/tracks';
+    }
+    else if (query.tracksFrom === 'playlist') {
+      const  { ownerId, playlistId } = query;
+      url += `/users/${ownerId}/playlists/${playlistId}/tracks`;
     }
     else {
-      // TODO: handle tracks from playlists
+      Ember.Logger.log('Unexpected tracksFrom key: ' + query.tracksFrom);
     }
 
     url += `?offset=${query.offset}&limit=${query.limit}`;

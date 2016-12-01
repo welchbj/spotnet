@@ -6,7 +6,7 @@ export default DS.JSONAPISerializer.extend({
    * Normalize a track object returned from Spotify's Web API.
    */
   normalizeTrackObject(track) {
-    return {
+    let normalizedTrack = {
       type: 'track',
 
       id: track.id,
@@ -22,8 +22,13 @@ export default DS.JSONAPISerializer.extend({
         spotifyUri: track.uri
 
       }
-
     };
+
+    if (!normalizedTrack.id) {
+      normalizedTrack.id = track.uri;
+    }
+
+    return normalizedTrack;
   },
 
   normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {

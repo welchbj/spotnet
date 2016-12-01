@@ -3,16 +3,9 @@ import { storageFor } from 'ember-local-storage';
 
 /**
  * The client-side Spotify service, used to manage
- * the Spotify session and interact with the Spotify
- * Web API.
+ * the Spotify session.
  */
 export default Ember.Service.extend({
-
-  /**
-   * Ajax service for making backend requests to the
-   * Spotify Web API.
-   */
-  ajax: Ember.inject.service(),
 
   /**
    * Local storage for access tokens.
@@ -62,29 +55,6 @@ export default Ember.Service.extend({
    */
   invalidateToken() {
     this.setToken(null);
-  },
-
-  /**
-   * Get metadata information about a playlist. This will make a request
-   * to get the following fields from the playlist object:
-   *    description
-   *    followers
-   *    name
-   */
-  getPlaylistMetadata(userId, playlistId) {
-    const endpoint = `/users/${userId}/playlists/${playlistId}`;
-    const params = '?fields=description,followers,name';
-    return this.get('ajax').request(endpoint + params);
-  },
-
-  /**
-   * Get the tracks for a user's playlist, indicating the page to get
-   * as well as the number of entries which should be on each page.
-   */
-  getTracksFromPlaylist(userId, playlistId, page, tracksPerPage) {
-    const endpoint = `/users/${userId}/playlists/${playlistId}/tracks`;
-    const params = `?offset=${page * tracksPerPage}&limit=${tracksPerPage}`;
-    return this.get('ajax').request(endpoint + params);
   }
 
 });

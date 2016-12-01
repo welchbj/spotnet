@@ -5,6 +5,11 @@ export default Ember.Component.extend({
   /**
    * The playlist model, derived from Spotify's Web API.
    */
-  playlist: null
+  playlist: null,
+
+  /**
+   * The number of tracks contained within the playlist.
+   */
+  numTracks: null
 
 });

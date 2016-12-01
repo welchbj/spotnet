@@ -16,13 +16,25 @@ export default Ember.Route.extend({
   },
 
   model(params) {
-    const spotify = this.get('spotify');
+    const store = this.get('store');
     const { page, owner_id, playlist_id } = params;
 
+    const limit = ENV.NUM_SONGS_PER_PAGE;
+    const offset = (page - 1) * limit;
+
     return Ember.RSVP.hash({
-      metadata: spotify.getPlaylistMetadata(owner_id, playlist_id),
-      songs: spotify.getTracksFromPlaylist(owner_id, playlist_id, page - 1,
-                                           ENV.NUM_SONGS_PER_PAGE)
+      playlist: store.findRecord('playlist', playlist_id, {
+        adapterOptions: {
+          ownerId: owner_id
+        }
+      }),
+      tracks: store.query('track', {
+        tracksFrom: 'playlist',
+        ownerId: owner_id,
+        playlistId: playlist_id,
+        limit: limit,
+        offset: offset
+      })
     });
   }
 
