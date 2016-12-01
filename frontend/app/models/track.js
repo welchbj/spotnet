@@ -1,7 +1,6 @@
 import attr from 'ember-data/attr';
 import Ember from 'ember';
 import Model from 'ember-data/model';
-import { hasMany } from 'ember-data/relationships';
 
 /**
  * A Spotify track model, derived from Spotify's Web API. See:
