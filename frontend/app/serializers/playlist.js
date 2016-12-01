@@ -23,7 +23,7 @@ export default DS.JSONAPISerializer.extend({
     };
   },
 
-  normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {  // jshint ignore:line
     const numPlaylists = payload.total;
     let playlists = payload.items.map((item) => this.normalizePlaylistObject(item));
     return {
@@ -34,7 +34,7 @@ export default DS.JSONAPISerializer.extend({
     };
   },
 
-  normalizeFindRecordResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindRecordResponse(store, primaryModelClass, payload, id, requestType) {  // jshint ignore:line
     return {
       data: this.normalizePlaylistObject(payload)
     };

@@ -5,7 +5,7 @@ export default DS.JSONAPISerializer.extend({
   /**
    * Normalize the response from the Spotify Web API's /me endpoint.
    */
-  normalizeFindRecordResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindRecordResponse(store, primaryModelClass, payload, id, requestType) {  // jshint ignore:line
     return {
       data: {
 

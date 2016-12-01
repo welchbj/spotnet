@@ -31,7 +31,7 @@ export default DS.JSONAPISerializer.extend({
     return normalizedTrack;
   },
 
-  normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {
+  normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {  // jshint ignore:line
     let normalizedTracks;
     let numTracks;
     if ('items' in payload) {

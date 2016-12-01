@@ -3,7 +3,7 @@ import Ember from 'ember';
 
 export default ApplicationAdapter.extend({
 
-  urlForQuery(query, modelName) {
+  urlForQuery(query, modelName) {  // jshint ignore:line
     let url = this.get('baseUrl');
 
     if (query.tracksFrom === 'me') {
