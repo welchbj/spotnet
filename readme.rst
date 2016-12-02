@@ -40,17 +40,13 @@ Next, install the backend Python dependencies::
     $ cd backend
     $ pip install -rrequirements.txt
 
-All backend dependencies should now be set up. To run the tests, use::
-
-    $ TODO: command to run the tests
-
 To run an instance of the master server::
 
-    $ TODO: command to run the master server
+    $ python -m backend.master --advertise --port=8000 --keyphrase="Brian is the cooliest"
 
 And to run an instance of the slave server::
 
-    $ TODO: command to run the slave server
+    $ python -m backend.slave --discover
 
 The Frontend
 ------------
