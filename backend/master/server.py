@@ -9,6 +9,7 @@ from websockets.exceptions import ConnectionClosed
 from ..utils import get_configured_logger
 from .config import SPOTNET_MASTER_LOGGER_NAME
 from .slave_client import SpotnetSlaveClient
+from .web_client import SpotnetWebClient
 
 
 class SpotnetMasterServer(object):
@@ -92,7 +93,22 @@ class SpotnetMasterServer(object):
             await ws.close()
 
     async def _handle_web_client_connection(self, ws, json_dict):
-        pass
+        """Coroutine to handle a WebSocket connection from the web client.
+
+        Args:
+            websocket (websockets.server.WebSocketServerProtocol): The open
+                slave WebSocket connection.
+            json_dict (dict): The JSON-like dict that was sent when this
+                connection was initially open (on the first recv).
+
+        """
+        self.logger.info('Received connection from web client.')
+
+        web_client = SpotnetWebClient(ws)
+        state_json = self._get_state()
+
+        await web_client.send_state(self, state_json)
+        self.logger.info('Sent system state to web client.')
 
     async def _handle_slave_connection(self, ws, json_dict):
         """Coroutine to handle a WebSocket connection from a slave server.
@@ -121,3 +137,14 @@ class SpotnetMasterServer(object):
         """Advertise this service via Zeroconf."""
         # TODO
         pass
+
+    def _get_state(self):
+        """Return the entire state of the system as a JSON-like dict."""
+        return {
+            'data': {
+                'voting-enabled': self.voting_enabled,
+                'votes-for-skip': self.votes_for_skip,
+                'slaves': [slave.get_state() for _, slave in
+                           self.slave_dict_by_ws.items()]
+            }
+        }

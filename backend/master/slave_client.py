@@ -17,8 +17,8 @@ class SpotnetSlaveClient(WebSocketWrapper):
         track_queue (List[Tuple(str,str)]): A list of tuples containing the
             Spotify id and uri of each track in the queue for this slave
             node.
-        votes_for_skip (int): The current number of votes towards skipping
-            the currently playing song.
+        counted_votes_for_skip (int): The current number of votes towards
+            skipping the currently playing song.
 
     """
 
@@ -29,4 +29,37 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.uuid = str(uuid.uuid1())
         self.is_connected = False
         self.track_queue = []
-        self.votes_for_skip = 0
+        self.counted_votes_for_skip = 0
+
+    def get_state(self):
+        """Return the state of this slave as a JSON-like dict.
+
+        Returned dicts will have the form::
+
+            {
+                'uuid': str,
+                'name': str,
+                'is-connected': bool,
+                'counted-votes-for-skip': int,
+                'track-queue': [
+                    {
+                        'id': str,
+                        'uri': str
+                    },
+
+                    ...
+                ]
+            }
+
+        """
+        json_like_track_queue = [
+            {'id': track_id, 'uri': track_uri} for track_id, track_uri in
+            self.track_queue]
+
+        return {
+            'uuid': self.uuid,
+            'name': self.name,
+            'is-connected': self.is_connected,
+            'counted-votes-for-skip': self.counted_votes_for_skip,
+            'track-queue': json_like_track_queue
+        }
