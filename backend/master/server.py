@@ -77,20 +77,24 @@ class SpotnetMasterServer(object):
             else:
                 raise ValueError('Invalid "sender" entry in request.')
         except ConnectionClosed as e:
-            self.logger.error('Unexpected closed WebSocket connection.')
+            self.logger.warn('Unexpected closed WebSocket connection.')
         except ValueError as e:
             self.logger.error('Invalid message received: ' + repr(e))
         except Exception as e:
             self.logger.error('Received unexpected error: ' + repr(e))
         finally:
-            ws_uuid = self.slave_dict_by_ws[ws].uuid
+            # only clean up slave WebSockets;
+            # web client connections are expected to end frequently
+            if ws in self.slave_dict_by_ws:
+                ws_uuid = self.slave_dict_by_ws[ws].uuid
 
-            self.logger.info('Cleaning up WebSocket with uuid {}.'
-                             .format(ws_uuid))
+                self.logger.info('Cleaning up slave WebSocket with uuid {}.'
+                                 .format(ws_uuid))
 
-            self.slave_dict_by_ws.pop(ws, None)
-            self.slave_dict_by_uuid.pop(ws_uuid, None)
-            await ws.close()
+                self.slave_dict_by_ws.pop(ws, None)
+                self.slave_dict_by_uuid.pop(ws_uuid, None)
+            else:
+                self.logger.info('Web client WebSocket disconnected.')
 
     async def _handle_web_client_connection(self, ws, json_dict):
         """Coroutine to handle a WebSocket connection from the web client.
@@ -105,10 +109,15 @@ class SpotnetMasterServer(object):
         self.logger.info('Received connection from web client.')
 
         web_client = SpotnetWebClient(ws)
-        state_json = self._get_state()
 
-        await web_client.send_state(self, state_json)
+        state_json = self._get_state()
+        await web_client.send_state(state_json)
+
         self.logger.info('Sent system state to web client.')
+
+        while True:
+            # TODO: handle directives from web client ws
+            await asyncio.sleep(1)
 
     async def _handle_slave_connection(self, ws, json_dict):
         """Coroutine to handle a WebSocket connection from a slave server.

@@ -38,6 +38,7 @@ class SpotnetSlaveServer(WebSocketWrapper):
     async def run_forever(self):
         """Run the slave server."""
         self.logger.info('Beginning execution of Spotnet slave server.')
+        was_forcibly_closed = False
 
         try:
             await self.open_ws(self.master_address)
@@ -46,14 +47,19 @@ class SpotnetSlaveServer(WebSocketWrapper):
             while True:
                 await self._handle_master_message()
         except ConnectionClosed as e:
-            self.logger.error('Unexpected closed WebSocket connection.')
+            self.logger.warn('Master server unexpectedly closed WebSocket '
+                             'connection.')
+            was_forcibly_closed = True
         except ValueError as e:
             self.logger.error('Invalid message received: ' + repr(e))
         except Exception as e:
             self.logger.error('Received unexpected error: ' + repr(e))
         finally:
-            self.logger.info('Closing WebSocket connection.')
-            await self.close_ws()
+            if not was_forcibly_closed:
+                self.logger.info('Closing WebSocket connection.')
+                await self.close_ws()
+
+            self.logger.info('Done running.')
 
     async def _await_connected(self):
         """Coroutine to perform the slave connection flow."""
@@ -62,6 +68,8 @@ class SpotnetSlaveServer(WebSocketWrapper):
             'sender': 'slave'})
 
         # wait for credentials to be sent from the master server
+        self.logger.info('Established connection to master sever; awaiting '
+                         'credentials.')
         resp = await self.recv_json()
 
         status = resp.get('status')

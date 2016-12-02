@@ -21,6 +21,11 @@ export default Ember.Controller.extend({
       content: 'Something went wrong contacting Spotify\'s API. ' +
                'Perhaps you could try re-connecting your account.',
       type: 'error'
+    },
+    SPOTNET_MASTER_CONNECTION_FAILED: {
+      content: 'Something went wrong when communicating with the Spotnet ' +
+               'master server.',
+      type: 'error'
     }
   },
 
