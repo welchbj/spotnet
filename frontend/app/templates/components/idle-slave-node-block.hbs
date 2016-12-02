@@ -1,7 +1,9 @@
-<i class="ui large feed middle aligned icon"></i>
 <div class="right floated content">
   <div class="ui basic button">Provide Credentials</div>
 </div>
 <div class="content">
-  Node with UUID {{slave.uuid}}
+  <div class="header">Node with UUID {{slave.uuid}}</div>
+  <div class="description">
+    First connected {{moment-from-now slave.firstConnectedAt}}.
+  </div>
 </div>

@@ -1,5 +1,6 @@
 """A client implementation for the Spotnet slave server."""
 
+import datetime
 import uuid
 
 from ..utils import WebSocketWrapper
@@ -19,6 +20,8 @@ class SpotnetSlaveClient(WebSocketWrapper):
             node.
         counted_votes_for_skip (int): The current number of votes towards
             skipping the currently playing song.
+        first_connected_at (str): An isoformat string indicating the time
+            tht the slave first made connection with the master server.
 
     """
 
@@ -30,6 +33,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.is_connected = False
         self.track_queue = []
         self.counted_votes_for_skip = 0
+        self.first_connected_at = datetime.datetime.now().isoformat()
 
     def get_state(self):
         """Return the state of this slave as a JSON-like dict.
@@ -41,6 +45,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
                 'name': str,
                 'is-connected': bool,
                 'counted-votes-for-skip': int,
+                'first-connected-at': string,
                 'track-queue': [
                     {
                         'id': str,
@@ -61,5 +66,6 @@ class SpotnetSlaveClient(WebSocketWrapper):
             'name': self.name,
             'is-connected': self.is_connected,
             'counted-votes-for-skip': self.counted_votes_for_skip,
+            'first-connected-at': self.first_connected_at,
             'track-queue': json_like_track_queue
         }

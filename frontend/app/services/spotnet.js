@@ -32,6 +32,7 @@ export default Ember.Service.extend({
    *   "countedVotesForSkip": number,
    *   "isConnected": boolean,
    *   "name": string,
+   *   "firstConnectedAt": isoformat string,
    *   "trackQueue": [{id: 'some id', uri: 'some uri'}, ...]
    * }
    */
@@ -106,7 +107,7 @@ export default Ember.Service.extend({
    * WebSocket close event handler.
    */
   onSocketClose(event) {
-    Ember.Logger.log('Master server WebSocket closed.')
+    Ember.Logger.log('Master server WebSocket closed.');
 
     this.set('wasConnectionError', true);
     this.set('socketRef', null);
@@ -165,6 +166,7 @@ export default Ember.Service.extend({
         countedVotesForSkip: slaveObj['counted-votes-for-skip'],
         isConnected: slaveObj['is-connected'],
         name: slaveObj.name,
+        firstConnectedAt: slaveObj['first-connected-at'],
         trackQueue: slaveObj['track-queue']
       };
     }));
