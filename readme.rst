@@ -66,7 +66,8 @@ A correctly written local_config.js file for development would look similar to::
     $ cat ./frontend/config/local_config.js
     exports.config = {
       SPOTIFY_CLIENT_ID: 'my client id',
-      SPOTIFY_AUTH_REDIRECT_URL: 'http://localhost:4200/auth'
+      SPOTIFY_AUTH_REDIRECT_URL: 'http://localhost:4200/auth',
+      SPOTNET_MASTER_SERVER_URL: 'ws://localhost:8000'
     };
 
 This config file is loaded in Ember's environment.js file (also in the config directory) alongside other environment parameters. You should now be able to build and serve the Ember frontend application. Run the live reload server with::

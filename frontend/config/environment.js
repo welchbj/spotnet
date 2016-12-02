@@ -36,7 +36,8 @@ module.exports = function(environment) {
     // Put the following in your local_config.js file:
     // exports.config = {
     //   SPOTIFY_CLIENT_ID: 'YOUR SPOTIFY CLIENT ID',
-    //   SPOTIFY_AUTH_REDIRECT_URL: 'YOUR SPOTIFY AUTH REDIRECT URL'
+    //   SPOTIFY_AUTH_REDIRECT_URL: 'YOUR SPOTIFY AUTH REDIRECT URL',
+    //   SPOTNET_MASTER_SERVER_URL: 'YOUR SPOTNET MASTER SERVER URL'
     // };
     var local = require('./local_config.js');
     Object.keys(local.config).forEach(function(key) {
