@@ -32,6 +32,12 @@ class SpotnetMasterServer(object):
         slave_dict_by_ws (Dict{WebSocketServerProtocol:SpotnetSlaveClient}):
             Similar to the ``slave_dict_by_uuid`` attribute, but keyed by
             open WebSocket connections.
+        web_client_host_ws (WebSocketServerProtocol): The WebSocket
+            representing the current connection from the host of the
+            application; i.e., the user that has unlimited privileges for
+            modifying data. There may only be one of these connections per
+            time with the master server, so this object also acts as a kind of
+            lock.
         logger (logging.Logger): A logger instance for this server.
 
     """
@@ -45,6 +51,7 @@ class SpotnetMasterServer(object):
         self.votes_for_skip = votes_for_skip
         self.slave_dict_by_uuid = {}
         self.slave_dict_by_ws = {}
+        self.web_client_host_ws = None
         self.logger = get_configured_logger(SPOTNET_MASTER_LOGGER_NAME)
 
     def get_run_forever_coro(self):
@@ -93,8 +100,15 @@ class SpotnetMasterServer(object):
 
                 self.slave_dict_by_ws.pop(ws, None)
                 self.slave_dict_by_uuid.pop(ws_uuid, None)
+
+                if self.web_client_host_ws is not None:
+                    # we need to notify the web client of the disonnected slave
+                    await self.web_client_host_ws.remove_slave(ws_uuid)
+                    self.logger.info('Sent web client notice to remove slave '
+                                     'with uuid {}.'.format(ws_uuid))
             else:
                 self.logger.info('Web client WebSocket disconnected.')
+                self.web_client_host_ws = None
 
     async def _handle_web_client_connection(self, ws, json_dict):
         """Coroutine to handle a WebSocket connection from the web client.
@@ -108,15 +122,15 @@ class SpotnetMasterServer(object):
         """
         self.logger.info('Received connection from web client.')
 
-        web_client = SpotnetWebClient(ws)
+        self.web_client_host_ws = SpotnetWebClient(ws)
 
         state_json = self._get_state()
-        await web_client.send_state(state_json)
+        await self.web_client_host_ws.send_state(state_json)
 
         self.logger.info('Sent system state to web client.')
 
         while True:
-            resp = await web_client.recv_json()
+            resp = await self.web_client_host_ws.recv_json()
             status = resp.get('status')
             data = resp.get('data')
 
@@ -156,6 +170,11 @@ class SpotnetMasterServer(object):
         self.slave_dict_by_uuid[slave.uuid] = slave
 
         self.logger.info('Generated slave with UUID {}.'.format(slave.uuid))
+
+        if self.web_client_host_ws is not None:
+            # need to notify web client of newly connected slave
+            await self.web_client_host_ws.add_slave(slave.get_state())
+            self.logger.info('Sent request to web client to add slave.')
 
         while True:
             # keep WebSocket alive, but don't expect slave to send anything
