@@ -66,7 +66,6 @@ def main():
         server = SpotnetSlaveServer(do_discover, master_address)
 
         asyncio.get_event_loop().run_until_complete(server.run_forever())
-        asyncio.get_event_loop().run_forever()
     except Exception as e:
         print('We got an exception :(. Re-raising it.')
         raise e
