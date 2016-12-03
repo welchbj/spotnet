@@ -48,3 +48,19 @@ class SpotnetWebClient(WebSocketWrapper):
             'data': {
                 'slave': slave_data
             }})
+
+    async def send_slave_state(self, slave_data):
+        """Coroutine to send the updated state of a slave.
+
+        Args:
+            slave_data (dict): A JSON-like dict representing the serialized
+                state of a slave node.
+
+        """
+        print(slave_data)
+        await self.send_json({
+            'status': 'send-slave-state',
+            'sender': 'master',
+            'data': {
+                'slave': slave_data
+            }})

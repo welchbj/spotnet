@@ -46,6 +46,12 @@ export default Model.extend({
     const seconds = ((durationMs % 60000) / 1000).toFixed(0);
 
     return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+  }),
+
+    descriptionText: Ember.computed('albumName', 'artists', 'durationMinutesSeconds', function() {
+      return [this.get('albumName'),
+              this.get('artists'),
+              this.get('durationMinutesSeconds')].filter((item) => item).join(' | ');
   })
 
 });

@@ -148,6 +148,39 @@ class SpotnetMasterServer(object):
                 self.logger.info(
                     'Sent credentials to slave with UUID {0}, assigning '
                     'name {1}.'.format(slave.uuid, slave.name))
+            elif status == 'add-track':
+                uuid = data['uuid']
+                slave = self.slave_dict_by_uuid[uuid]
+
+                self.logger.info(
+                    'Received "add-track" request from web client for slave '
+                    'with UUID {}.'.format(uuid))
+
+                position = data['position']
+                track = data['track']
+
+                if position == 'current':
+                    if slave.is_paused:
+                        slave.prepend_track(track)
+                    else:
+                        slave.replace_first_track(track)
+                        await slave.send_track()
+                elif position == 'next':
+                    slave.set_next_track(track)
+                else:
+                    raise ValueError(
+                        'Invalid position key "{}" sent in "add-track" '
+                        'directive.'.format(position))
+
+                self.logger.info(
+                    'Added track with uri "{0}" on slave with UUID {1}.'
+                    .format(track['uri'], uuid))
+
+                await self.web_client_host_ws.send_slave_state(
+                    slave.get_state())
+            elif status == 'remove-track':
+                # TODO
+                pass
             else:
                 raise ValueError(
                     'Invalid "status" key "{}" received from web client.'

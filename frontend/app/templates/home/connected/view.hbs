@@ -1,1 +1,11 @@
-{{outlet}}
+{{#with model as |slaveUuid|}}
+  {{#with (find-by 'uuid' slaveUuid spotnet.connectedSlaves) as |connectedSlave|}}
+    Track queue:
+    {{#each connectedSlave.trackQueue as |track|}}
+      {{track.id}}
+      {{track.uri}}
+    {{/each}}
+  {{else}}
+    Couldn't find it.
+  {{/with}}
+{{/with}}

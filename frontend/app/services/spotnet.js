@@ -115,9 +115,11 @@ export default Ember.Service.extend({
       case 'send-state':
         this.loadState(data);
         break;
+      case 'send-slave-state':
+        this.loadSlave(data.slave);
+        break;
       case 'add-slave':
-        const { slave } = data;
-        this.addSlave(slave);
+        this.addSlave(data.slave);
         break;
       case 'remove-slave':
         const { uuid } = data;
@@ -209,7 +211,6 @@ export default Ember.Service.extend({
     const slave = this.get('slaves').findBy('uuid', uuid);
     Ember.set(slave, 'isConnected', true);
     Ember.set(slave, 'name', name);
-    console.log(slave);
   },
 
   /**
@@ -227,6 +228,57 @@ export default Ember.Service.extend({
    */
   addSlave(slaveObj) {
     this.get('slaves').addObject(this.normalizeSlaveObj(slaveObj));
+  },
+
+  /**
+   * Update / load a slave into the array of slaves.
+   */
+  loadSlave(slaveObj) {
+    const slave = this.normalizeSlaveObj(slaveObj);
+    const { uuid } = slave;
+    const toUpdate = this.get('slaves').findBy('uuid', uuid);
+
+    Ember.set(toUpdate, 'countedVotesForSkip', slave.countedVotesForSkip);
+    Ember.set(toUpdate, 'isConnected', slave.isConnected);
+    Ember.set(toUpdate, 'isPaused', slave.isPaused);
+    Ember.set(toUpdate, 'name', slave.name);
+    Ember.set(toUpdate, 'firstConnectedAt', slave.firstConnectedAt);
+    Ember.set(toUpdate, 'trackQueue', slave.trackQueue);
+  },
+
+  /**
+   * Add a track to the slave with the specified uuid, at the specified
+   * position ('next' or 'current') in its queue. Note that the track argument
+   * is a track model.
+   */
+  sendAddTrack(slaveUuid, position, track) {
+    this.wsSend({
+      status: 'add-track',
+      sender: 'web-client',
+      data: {
+        uuid: slaveUuid,
+        position: position,
+        track: {
+          id: track.get('id'),
+          uri: track.get('spotifyUri')
+        }
+      }
+    });
+  },
+
+  /**
+   * Remove a track from the slave with the specified uuid, at the specified
+   * position.
+   */
+  sendRemoveTrack(slaveUuid, position) {
+    this.wsSend({
+      status: 'remove-track',
+      sender: 'web-client',
+      data: {
+        uuid: slaveUui,
+        position: position
+      }
+    });
   },
 
   /**

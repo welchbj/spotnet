@@ -33,7 +33,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.name = None
         self.uuid = str(uuid.uuid1())
         self.is_connected = False
-        self.is_paused = False
+        self.is_paused = True
         self.track_queue = []
         self.counted_votes_for_skip = 0
         self.first_connected_at = datetime.datetime.now().isoformat()
@@ -58,6 +58,39 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.name = name
         self.is_connected = True
 
+    async def send_pause(self):
+        """Coroutine to tell the slave server to pause audio playback."""
+        # TODO
+        pass
+
+    async def send_play(self):
+        """Coroutine to tell the slave server to resume audio playback."""
+        # TODO
+        pass
+
+    async def send_track(self):
+        """Coroutine to send the slave server the next track to play."""
+        # TODO
+        pass
+
+    def prepend_track(self, track):
+        """Add a track to the beginnig of the queue."""
+        self.track_queue = [track] + self.track_queue
+
+    def replace_first_track(self, track):
+        if not self.track_queue:
+            self.track_queue.append(track)
+        else:
+            self.track_queue[0] = track
+
+    def set_next_track(self, track):
+        if not self.track_queue:
+            self.track_queue.append(track)
+        else:
+            self.track_queue = (self.track_queue[:1] +
+                                [track] +
+                                self.track_queue[1:])
+
     def get_state(self):
         """Return the state of this slave as a JSON-like dict.
 
@@ -81,10 +114,6 @@ class SpotnetSlaveClient(WebSocketWrapper):
             }
 
         """
-        json_like_track_queue = [
-            {'id': track_id, 'uri': track_uri} for track_id, track_uri in
-            self.track_queue]
-
         return {
             'uuid': self.uuid,
             'name': self.name,
@@ -92,5 +121,5 @@ class SpotnetSlaveClient(WebSocketWrapper):
             'is-paused': self.is_paused,
             'counted-votes-for-skip': self.counted_votes_for_skip,
             'first-connected-at': self.first_connected_at,
-            'track-queue': json_like_track_queue
+            'track-queue': self.track_queue
         }

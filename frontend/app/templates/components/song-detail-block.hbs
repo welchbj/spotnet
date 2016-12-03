@@ -1,22 +1,88 @@
 <div class="right floated content">
-  <div class="ui basic button {{if (not song.isSpotifyTrack) 'disabled'}}">Add to Queue</div>
+  <div class="ui basic button {{if (not song.isSpotifyTrack) 'disabled'}}" {{action 'openModal'}}>
+    Add to Queue
+  </div>
 </div>
 {{#if song.albumImageUrl}}
-<img class="ui avatar image" src="{{song.albumImageUrl}}">
+  <img class="ui avatar image" src="{{song.albumImageUrl}}">
 {{else}}
-<i class="large music middle aligned icon"></i>
+  <i class="large music middle aligned icon"></i>
 {{/if}}
 <div class="content">
   {{#if song.isSpotifyTrack}}
-  <a class="header" href="{{song.spotifyUrl}}" target="_blank">
-    {{song.name}}
-  </a>
+    <a class="header" href="{{song.spotifyUrl}}" target="_blank">
+      {{song.name}}
+    </a>
   {{else}}
-  {{song.name}}
+    {{song.name}}
   {{/if}}
-  {{#if descriptionText}}
-  <div class="description">
-    {{descriptionText}}
+
+  {{#if song.descriptionText}}
+    <div class="description">
+      {{song.descriptionText}}
+    </div>
+  {{/if}}
+</div>
+
+<div class="ui inverted modal">
+  <div class="header">
+    Add to Connected Nodes
   </div>
-  {{/if}}
+  <div class="content">
+    <div class="ui two column middle aligned very relaxed stackable grid">
+      <div class="column">
+        <div class="ui basic center aligned segment">
+          <img class="ui centered rounded small image" src="{{song.albumImageUrl}}">
+          <br>
+          <p><em>{{song.name}}</em> by {{song.artists}}</p>
+          <p>{{song.durationMinutesSeconds}}</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="ui basic center aligned segment">
+          {{#if spotnet.wasConnectionError}}
+            <div class="ui error message">
+              Couldn't connect to the master server.
+            </div>
+          {{else if spotnet.isLoading}}
+            {{spinkit-three-bounce}}
+          {{else if spotnet.connectedSlaves}}
+            <p>
+              <div class="ui basic button" {{action 'setAsCurrentTrack'}}>
+                <i class="{{if setAsCurrentTrack 'selected'}} radio icon"></i>
+                Set as current track
+              </div>
+              <div class="ui basic button" {{action 'setAsNextTrack'}}>
+                <i class="{{if setAsNextTrack 'selected'}} radio icon"></i>
+                Set as next track
+              </div>
+            </p>
+            <p>
+              {{#ui-dropdown class="fluid multiple selection" selected=selectedSlaves onChange=(action (mut selectedSlaves))}}
+                <i class="dropdown icon"></i>
+                <div class="default text">Select Connected Nodes</div>
+                <div class="menu">
+                  {{#each spotnet.connectedSlaves as |slave|}}
+                    <div class="item" data-value="{{slave.uuid}}">
+                      {{slave.name}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{/ui-dropdown}}
+            </p>
+          {{else}}
+            <div class="ui info message">
+              There aren't any connected nodes to add tracks to.
+            </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    {{#if selectedSlaves}}
+      <div class="ui basic approve button">Add</div>
+    {{/if}}
+    <div class="ui basic cancel button">Cancel</div>
+  </div>
 </div>
