@@ -1,5 +1,9 @@
 <div class="right floated content">
-  <div class="ui basic button">Provide Credentials</div>
+  {{#link-to 'home.idle.connect' slave.uuid}}
+  <div class="ui basic button">
+    Provide Credentials
+  </div>
+  {{/link-to}}
 </div>
 <div class="content">
   <div class="header">Node with UUID {{slave.uuid}}</div>

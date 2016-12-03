@@ -1,6 +1,8 @@
 $spotnet-green: #B3FFB3;
 $white: #FFFFFF;
 
+$medium-padding-size: 2em;
+
 body {
   background-color: $spotnet-green;
 }
@@ -14,6 +16,11 @@ body {
 
 .centered-message {
   text-align: center;
+}
+
+.padded-lr {
+  padding-left: $medium-padding-size;
+  padding-right: $medium-padding-size;
 }
 
 .tab-item > a {

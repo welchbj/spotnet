@@ -1,13 +1,23 @@
 <div class="ui container">
-  <div class="ui basic segment">
-    {{#if spotnet.isLoading}}
-      {{spinkit-three-bounce}}
-    {{else}}
-      <div class="ui divided list">
-        {{#each (filter-by 'isConnected' false spotnet.slaves) as |slave|}}
-          {{idle-slave-node-block slave=slave}}
-        {{/each}}
-      </div>
-    {{/if}}
-  </div>
+  {{#if spotnet.isLoading}}
+    {{spinkit-three-bounce}}
+  {{else}}
+    {{outlet}}
+    <div class="ui basic segment">
+        <div class="ui divided list">
+          {{#each spotnet.idleSlaves as |slave|}}
+            {{idle-slave-node-block slave=slave}}
+          {{else}}
+            <div class="ui info message">
+              <div class="header">
+                There aren't any idle nodes
+              </div>
+              <p>
+                Perhaps you'd like to view the {{#link-to 'home.connected'}}connected nodes{{/link-to}}?
+              </p>
+            </div>
+          {{/each}}
+        </div>
+    </div>
+  {{/if}}
 </div>

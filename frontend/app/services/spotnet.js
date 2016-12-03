@@ -45,6 +45,20 @@ export default Ember.Service.extend({
   isLoading: true,
 
   /**
+   * Computed property to get array of idle slave objects.
+   */
+  idleSlaves: Ember.computed('slaves.[]', function() {
+    return this.get('slaves').filter((slave) => !slave.isConnected);
+  }),
+
+  /**
+   * Computed property to get array of connected slave objects.
+   */
+  connectedSlaves: Ember.computed('slaves.[]', function() {
+    return this.get('slaves').filter((slave) => slave.isConnected);
+  }),
+
+  /**
    * Boolean flag indicating that there was a connection error when
    * using (or attempting to use) the WebSocket connection with the master
    * server.
@@ -172,6 +186,26 @@ export default Ember.Service.extend({
     }));
 
     this.set('isLoading', false);
+  },
+
+  /**
+   * Send the credentials for a slave to the master server.
+   */
+  sendCredentials(uuid, name, username, password) {
+    this.wsSend({
+      status: 'send-credentials',
+      sender: 'web-client',
+      data: {
+        uuid: uuid,
+        name: name,
+        username: username,
+        password: password
+      }
+    });
+
+    const slave = this.get('slaves').findBy('uuid', uuid);
+    Ember.set(slave, 'isConnected', true);
+    Ember.set(slave, 'name', name);
   }
 
 });

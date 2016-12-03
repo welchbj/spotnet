@@ -1,0 +1,27 @@
+<div class="padded-lr">
+  {{#if spotnet.isLoading}}
+    {{spinkit-three-bounce}}
+  {{else}}
+    {{#with model as |slaveUuid|}}
+      {{#with (find-by 'uuid' slaveUuid spotnet.slaves) as |slave|}}
+        <div class="ui grid">
+          <div class="centered row">
+            {{connect-idle-slave-dialog slave=slave}}
+          </div>
+        </div>
+      {{else}}
+        {{#if spotnet.idleSlaves}}
+          <div class="ui icon warning message">
+            <i class="wifi icon"></i>
+            <div class="content">
+              <div class="header">Whoops!</div>
+              <p>
+                We couldn't find this node on the network. Did it get disconnected?
+              </p>
+            </div>
+          </div>
+        {{/if}}
+      {{/with}}
+    {{/with}}
+  {{/if}}
+</div>

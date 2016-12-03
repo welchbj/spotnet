@@ -35,6 +35,26 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.counted_votes_for_skip = 0
         self.first_connected_at = datetime.datetime.now().isoformat()
 
+    async def send_credentials(self, name, username, password):
+        """Coroutine to send credentials and node name to connect the slave.
+
+        Args:
+            name (str): The name to assign the slave node.
+            username (str): The Spotify username to use in authentication.
+            password (str): The Spotify password to use in authentication.abs
+
+        """
+        await self.send_json({
+            'status': 'send-credentials',
+            'sender': 'master',
+            'data': {
+                'username': username,
+                'password': password
+            }})
+
+        self.name = name
+        self.is_connected = True
+
     def get_state(self):
         """Return the state of this slave as a JSON-like dict.
 

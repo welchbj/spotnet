@@ -1,0 +1,51 @@
+<div class="ui top attached label">Connect {{slave.uuid}}</div>
+
+<div class="ui basic segment">
+  {{#if slave.isConnected}}
+    <div class="ui icon positive message">
+      <i class="share alternate square icon"></i>
+      <div class="content">
+        <div class="header">Connected</div>
+        <p>This node is connected.</p>
+      </div>
+    </div>
+  {{else}}
+    <div class="ui icon info message">
+      <i class="spotify icon"></i>
+      <div class="content">
+        <p>Provide the name for the node and the username/password of a Spotify premium account to enable playback on this node.</p>
+      </div>
+    </div>
+    <div class="ui form">
+      <div class="three fields">
+        <div class="field">
+          <div class="ui input">
+            {{input value=name action="sendCredentials" type="text" placeholder="Node name"}}
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui input">
+            {{input value=username action="sendCredentials" type="text" placeholder="Username"}}
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui input">
+            {{input value=password action="sendCredentials" type="password" placeholder="Password"}}
+          </div>
+        </div>
+      </div>
+    </div>
+    {{#if errMsg}}
+      <p>
+        <i class="red warning icon"></i>
+        {{errMsg}}
+      </p>
+    {{/if}}
+    <div class="ui basic button" {{action 'sendCredentials'}}>
+      Send
+    </div>
+    <div class="ui basic button" {{action 'reset'}}>
+      Reset
+    </div>
+  {{/if}}
+</div>

@@ -116,8 +116,28 @@ class SpotnetMasterServer(object):
         self.logger.info('Sent system state to web client.')
 
         while True:
-            # TODO: handle directives from web client ws
-            await asyncio.sleep(1)
+            resp = await web_client.recv_json()
+            status = resp.get('status')
+            data = resp.get('data')
+
+            if status is None:
+                raise ValueError('No "status" key on web client request.')
+            elif data is None:
+                raise ValueError('No "data" key on web client request.')
+            elif status == 'send-credentials':
+                uuid = data['uuid']
+                slave = self.slave_dict_by_uuid[uuid]
+
+                await slave.send_credentials(
+                    data['name'], data['username'], data['password'])
+
+                self.logger.info(
+                    'Sent credentials to slave with UUID {0}, assigning '
+                    'name {1}.'.format(slave.uuid, slave.name))
+            else:
+                raise ValueError(
+                    'Invalid "status" key "{}" received from web client.'
+                    .format(status))
 
     async def _handle_slave_connection(self, ws, json_dict):
         """Coroutine to handle a WebSocket connection from a slave server.
@@ -140,7 +160,7 @@ class SpotnetMasterServer(object):
         while True:
             # keep WebSocket alive, but don't expect slave to send anything
             resp = await ws.recv()
-            self.logger.log('Received slave response {}.'.format(resp))
+            self.logger.info('Received slave response {}.'.format(resp))
 
     async def _advertise(self):
         """Advertise this service via Zeroconf."""
