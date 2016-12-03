@@ -4,20 +4,22 @@
   {{else}}
     {{outlet}}
     <div class="ui basic segment">
+      {{#if spotnet.idleSlaves}}
         <div class="ui divided list">
           {{#each spotnet.idleSlaves as |slave|}}
             {{idle-slave-node-block slave=slave}}
-          {{else}}
-            <div class="ui info message">
-              <div class="header">
-                There aren't any idle nodes
-              </div>
-              <p>
-                Perhaps you'd like to view the {{#link-to 'home.connected'}}connected nodes{{/link-to}}?
-              </p>
-            </div>
           {{/each}}
         </div>
+      {{else}}
+        <div class="ui info message">
+          <div class="header">
+            There aren't any idle nodes
+          </div>
+          <p>
+            Perhaps you'd like to view the {{#link-to 'home.connected'}}connected nodes{{/link-to}}?
+          </p>
+        </div>
+      {{/if}}
     </div>
   {{/if}}
 </div>

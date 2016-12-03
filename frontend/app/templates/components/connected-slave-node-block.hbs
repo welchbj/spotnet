@@ -1,0 +1,13 @@
+<div class="right floated content">
+  {{#link-to 'home.connected.view' slave.uuid}}
+    <div class="ui basic button">
+      View Node
+    </div>
+  {{/link-to}}
+</div>
+<div class="content">
+  <div class="header">{{slave.name}}</div>
+  <div class="description">
+    First connected {{moment-from-now slave.firstConnectedAt}}.
+  </div>
+</div>

@@ -11,7 +11,9 @@ Router.map(function() {
   this.route('home', function() {
     this.route('songs');
     this.route('playlists');
-    this.route('connected');
+    this.route('connected', function() {
+      this.route('view', { path: '/view/:slave_node_id' });
+    });
     this.route('idle', function() {
       this.route('connect', { path: '/connect/:slave_node_id' });
     });

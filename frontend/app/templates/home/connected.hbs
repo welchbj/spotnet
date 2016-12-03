@@ -1,1 +1,25 @@
-TODO: list connected nodes
+<div class="container">
+  {{#if spotnet.isLoading}}
+    {{spinkit-three-bounce}}
+  {{else}}
+    {{outlet}}
+    <div class="ui basic segment">
+      {{#if spotnet.connectedSlaves}}
+        <div class="ui divided list">
+          {{#each spotnet.connectedSlaves as |slave|}}
+            {{connected-slave-node-block slave=slave}}
+          {{/each}}
+        </div>
+      {{else}}
+        <div class="ui info message">
+          <div class="header">
+            There aren't any connected nodes
+          </div>
+          <p>
+            Perhaps you'd like to view the {{#link-to 'home.idle'}}idle nodes{{/link-to}}?
+          </p>
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+</div>
