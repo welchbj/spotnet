@@ -8,6 +8,11 @@
 <div class="content">
   <div class="header">{{slave.name}}</div>
   <div class="description">
-    First connected {{moment-from-now slave.firstConnectedAt}}.
+    First connected {{moment-from-now slave.firstConnectedAt}},
+    {{#if slave.isPaused}}
+      is current paused.
+    {{else}}
+      is currently playing audio.
+    {{/if}}
   </div>
 </div>

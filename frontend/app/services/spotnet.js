@@ -107,7 +107,7 @@ export default Ember.Service.extend({
     const { status, sender, data } = resp;
 
     if (sender !== 'master') {
-      Ember.Logger.log('Invaid sender received on WebSocket connection.');
+      Ember.Logger.log('Invalid sender received on WebSocket connection.');
       return;
     }
 
@@ -237,6 +237,7 @@ export default Ember.Service.extend({
         uuid: slaveObj.uuid,
         countedVotesForSkip: slaveObj['counted-votes-for-skip'],
         isConnected: slaveObj['is-connected'],
+        isPaused: slaveObj['is-paused'],
         name: slaveObj.name,
         firstConnectedAt: slaveObj['first-connected-at'],
         trackQueue: slaveObj['track-queue']

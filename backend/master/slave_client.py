@@ -15,6 +15,8 @@ class SpotnetSlaveClient(WebSocketWrapper):
         uuid (str): The unique identifier for the slave node.
         is_connected (bool): Boolean indicating whether or not this instance
             has been connected with Spotfiy credentials.
+        is_paused (bool): Boolean indicating whether or not this slave
+            instance is paused; instances are initialized with audio paused.
         track_queue (List[Tuple(str,str)]): A list of tuples containing the
             Spotify id and uri of each track in the queue for this slave
             node.
@@ -31,6 +33,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.name = None
         self.uuid = str(uuid.uuid1())
         self.is_connected = False
+        self.is_paused = False
         self.track_queue = []
         self.counted_votes_for_skip = 0
         self.first_connected_at = datetime.datetime.now().isoformat()
@@ -64,6 +67,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
                 'uuid': str,
                 'name': str,
                 'is-connected': bool,
+                'is-paused': bool,
                 'counted-votes-for-skip': int,
                 'first-connected-at': string,
                 'track-queue': [
@@ -85,6 +89,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
             'uuid': self.uuid,
             'name': self.name,
             'is-connected': self.is_connected,
+            'is-paused': self.is_paused,
             'counted-votes-for-skip': self.counted_votes_for_skip,
             'first-connected-at': self.first_connected_at,
             'track-queue': json_like_track_queue
