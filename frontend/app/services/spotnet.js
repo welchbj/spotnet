@@ -47,15 +47,19 @@ export default Ember.Service.extend({
   /**
    * Computed property to get array of idle slave objects.
    */
-  idleSlaves: Ember.computed('slaves.[]', function() {
-    return this.get('slaves').filter((slave) => !slave.isConnected);
+  idleSlaves: Ember.computed('slaves.@each.isConnected', function() {
+    return this.get('slaves').filter((slave) => {
+      return !Ember.get(slave, 'isConnected');
+    });
   }),
 
   /**
    * Computed property to get array of connected slave objects.
    */
-  connectedSlaves: Ember.computed('slaves.[]', function() {
-    return this.get('slaves').filter((slave) => slave.isConnected);
+  connectedSlaves: Ember.computed('slaves.@each.isConnected', function() {
+    return this.get('slaves').filter((slave) => {
+      return Ember.get(slave, 'isConnected');
+    });
   }),
 
   /**
@@ -110,6 +114,14 @@ export default Ember.Service.extend({
     switch (status) {
       case 'send-state':
         this.loadState(data);
+        break;
+      case 'add-slave':
+        const { slave } = data;
+        this.addSlave(slave);
+        break;
+      case 'remove-slave':
+        const { uuid } = data;
+        this.removeSlave(uuid);
         break;
       default:
         Ember.Logger.log('Received invalid status on master server ' +
@@ -174,16 +186,7 @@ export default Ember.Service.extend({
 
     // load slave models from the data
     const { slaves } = data;
-    this.set('slaves', slaves.map((slaveObj) => {
-      return {
-        uuid: slaveObj.uuid,
-        countedVotesForSkip: slaveObj['counted-votes-for-skip'],
-        isConnected: slaveObj['is-connected'],
-        name: slaveObj.name,
-        firstConnectedAt: slaveObj['first-connected-at'],
-        trackQueue: slaveObj['track-queue']
-      };
-    }));
+    this.set('slaves', slaves.map(this.normalizeSlaveObj));
 
     this.set('isLoading', false);
   },
@@ -206,6 +209,38 @@ export default Ember.Service.extend({
     const slave = this.get('slaves').findBy('uuid', uuid);
     Ember.set(slave, 'isConnected', true);
     Ember.set(slave, 'name', name);
+    console.log(slave);
+  },
+
+  /**
+   * Remove a slave from the `slaves` attribute by its uuid.
+   */
+  removeSlave(uuid) {
+    const slaves = this.get('slaves');
+    this.set('slaves', slaves.filter((slave) => {
+      return Ember.get(slave, 'uuid') !== uuid;
+    }));
+  },
+
+  /**
+   * Add a slave to the `slaves` attribute.
+   */
+  addSlave(slaveObj) {
+    this.get('slaves').addObject(this.normalizeSlaveObj(slaveObj));
+  },
+
+  /**
+   * Normalize a raw slave object sent from the master server.
+   */
+  normalizeSlaveObj(slaveObj) {
+    return {
+        uuid: slaveObj.uuid,
+        countedVotesForSkip: slaveObj['counted-votes-for-skip'],
+        isConnected: slaveObj['is-connected'],
+        name: slaveObj.name,
+        firstConnectedAt: slaveObj['first-connected-at'],
+        trackQueue: slaveObj['track-queue']
+      };
   }
 
 });
