@@ -4,7 +4,7 @@
       <h2 class="ui header">
         {{slave.name}}
         <div class="sub header">
-          {{slave.trackQueue.length}} songs in the queue
+          {{slave.trackQueue.length}} songs in the queue, currently {{if slave.isPaused 'paused' 'playing'}}
         </div>
       </h2>
     </div>
@@ -45,11 +45,20 @@
             {{#if comingUpTracks}}
               <h3 class="ui header">Coming up</h3>
               <div class="ui horizontal list">
-                {{#each comingUpTracks as |track|}}
-                  <div class="item">
-                    {{#ui-popup content=track.name}}
-                      <img class="ui tiny rounded bordered image" src="{{track.albumImageUrl}}">
-                    {{/ui-popup}}
+                {{#each comingUpTracks as |track index|}}
+                  <div class="item" style="cursor: pointer;" {{action 'removeTrack' index}}>
+                    <div class="wrapper" data-tooltip="{{track.name}}">
+                      <div class="ui tiny rounded bordered image remove-dimmer">
+                        <div class="ui dimmer">
+                          <div class="content">
+                            <div class="center">
+                              <i class="red cancel icon"></i> Remove
+                            </div>
+                          </div>
+                        </div>
+                        <img class="ui image" src="{{track.albumImageUrl}}">
+                      </div>
+                    </div>
                   </div>
                 {{/each}}
               </div>
