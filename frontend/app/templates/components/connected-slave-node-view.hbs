@@ -24,16 +24,16 @@
                 <p>{{currentTrack.descriptionText}}</p>
                 <p>
                   {{#if slave.isPaused}}
-                    <div class="ui basic circular icon button" {{action 'playCurrentTrack'}} data-tooltip="Play">
-                      <i class="play icon"></i>
+                    <div class="ui basic icon button" {{action 'playCurrentTrack'}} data-tooltip="Play">
+                      <i class="green play icon"></i>
                     </div>
                   {{else}}
-                    <div class="ui basic circular icon button" {{action 'pauseCurrentTrack'}} data-tooltip="Pause">
-                      <i class="pause icon"></i>
+                    <div class="ui basic icon button" {{action 'pauseCurrentTrack'}} data-tooltip="Pause">
+                      <i class="yellow pause icon"></i>
                     </div>
                   {{/if}}
-                  <div class="ui basic circular icon button {{unless comingUpTracks 'disabled'}}" {{action 'skipCurrentTrack'}} data-tooltip="Skip">
-                    <i class="forward icon"></i>
+                  <div class="ui basic icon button" {{action 'removeTrack' slave.uuid 0}} data-tooltip="Skip">
+                    <i class="blue forward icon"></i>
                   </div>
                 </p>
               </div>
@@ -44,11 +44,11 @@
           <div class="ui basic segment">
             {{#if comingUpTracks}}
               <h3 class="ui header">Coming up</h3>
-              <div class="ui horizontal list">
+              <div class="ui stackable five column grid">
                 {{#each comingUpTracks as |track index|}}
-                  <div class="item" style="cursor: pointer;" {{action 'removeTrack' index}}>
-                    <div class="wrapper" data-tooltip="{{track.name}}">
-                      <div class="ui tiny rounded bordered image remove-dimmer">
+                  <div class="column">
+                    <div class="flex-centered wrapper" style="cursor: pointer;" data-tooltip="{{track.name}}" {{action 'removeTrack' slave.uuid (inc index)}}>
+                      <div class="ui tiny rounded bordered image remove-dimmer" style="margin: 0 auto">
                         <div class="ui dimmer">
                           <div class="content">
                             <div class="center">
@@ -56,7 +56,7 @@
                             </div>
                           </div>
                         </div>
-                        <img class="ui image" src="{{track.albumImageUrl}}">
+                        <img class="ui centered image" src="{{track.albumImageUrl}}">
                       </div>
                     </div>
                   </div>

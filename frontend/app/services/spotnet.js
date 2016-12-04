@@ -275,7 +275,7 @@ export default Ember.Service.extend({
       status: 'remove-track',
       sender: 'web-client',
       data: {
-        uuid: slaveUui,
+        uuid: slaveUuid,
         position: position
       }
     });

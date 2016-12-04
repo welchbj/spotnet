@@ -96,25 +96,14 @@ export default Ember.Component.extend({
       // TODO
     },
 
-    skipCurrentTrack() {
-      const comingUpTracks = this.get('comingUpTracks');
-      if (!comingUpTracks) {
-        return;
-      }
-
-      console.log('Skip called.');
-      // TODO
-    },
-
     /**
      * Remove the track. Note that the `trackIndex` argument is the position
      * of the track to remove in the `comingUpTracks` array, so we must
      * increment it by 1 to properly remove the track from the slave's
      * `trackQueue` attribute.
      */
-    removeTrack(trackIndex) {
-      // TODO
-      console.log('Remove track called: ' + trackIndex);
+    removeTrack(slaveUuid, trackIndex) {
+      this.get('spotnet').sendRemoveTrack(slaveUuid, trackIndex);
     }
 
   }

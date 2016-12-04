@@ -29,6 +29,11 @@ body {
   padding-right: $large-padding-size !important;
 }
 
+.flex-centered {
+  display: flex;
+  align-items: center;
+}
+
 .tab-item > a {
   color: black;
 }
