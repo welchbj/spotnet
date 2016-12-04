@@ -1,11 +1,19 @@
 {{#with model as |slaveUuid|}}
-  {{#with (find-by 'uuid' slaveUuid spotnet.connectedSlaves) as |connectedSlave|}}
-    Track queue:
-    {{#each connectedSlave.trackQueue as |track|}}
-      {{track.id}}
-      {{track.uri}}
-    {{/each}}
-  {{else}}
-    Couldn't find it.
-  {{/with}}
+  <div class="ui basic segment">
+    {{#if spotnet.wasConnectionError}}
+      <div class="ui error message">
+        Unable to connect to the master server.
+      </div>
+    {{else if spotnet.isLoading}}
+      {{spinkit-three-bounce}}
+    {{else}}
+      {{#with (find-by 'uuid' slaveUuid spotnet.connectedSlaves) as |connectedSlave|}}
+        {{connected-slave-node-view slave=connectedSlave}}
+      {{else}}
+        <div class="ui warning message">
+          It doesn't look like this is a connected node anymore. Perhaps it got disconnected?
+        </div>
+      {{/with}}
+    {{/if}}
+  </div>
 {{/with}}

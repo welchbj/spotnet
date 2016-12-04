@@ -1,0 +1,78 @@
+<div class="ui raised padded-extra-lr segment">
+  <div class="ui stackable grid">
+    <div class="centered row">
+      <h2 class="ui header">
+        {{slave.name}}
+        <div class="sub header">
+          {{slave.trackQueue.length}} songs in the queue
+        </div>
+      </h2>
+    </div>
+    {{#if isLoadingTracks}}
+      <div class="centered row">
+        {{spinkit-three-bounce}}
+      </div>
+    {{else if loadedTracks}}
+      <div class="row">
+        <div class="six wide column">
+          <div class="ui grid">
+            <div class="centered row">
+              <div class="ui basic segment">
+                <h3 class="ui header">Current Song</h3>
+                <img class="ui small bordered rounded centered image" src="{{currentTrack.albumImageUrl}}">
+                <br>
+                <p>{{currentTrack.descriptionText}}</p>
+                <p>
+                  {{#if slave.isPaused}}
+                    <div class="ui basic circular icon button" {{action 'playCurrentTrack'}} data-tooltip="Play">
+                      <i class="play icon"></i>
+                    </div>
+                  {{else}}
+                    <div class="ui basic circular icon button" {{action 'pauseCurrentTrack'}} data-tooltip="Pause">
+                      <i class="pause icon"></i>
+                    </div>
+                  {{/if}}
+                  <div class="ui basic circular icon button {{unless comingUpTracks 'disabled'}}" {{action 'skipCurrentTrack'}} data-tooltip="Skip">
+                    <i class="forward icon"></i>
+                  </div>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ten wide column">
+          <div class="ui basic segment">
+            {{#if comingUpTracks}}
+              <h3 class="ui header">Coming up</h3>
+              <div class="ui horizontal list">
+                {{#each comingUpTracks as |track|}}
+                  <div class="item">
+                    {{#ui-popup content=track.name}}
+                      <img class="ui tiny rounded bordered image" src="{{track.albumImageUrl}}">
+                    {{/ui-popup}}
+                  </div>
+                {{/each}}
+              </div>
+            {{else}}
+              <div class="ui info message">
+                This node does not have any songs coming up in its queue. Feel free to add some by
+                {{#link-to 'home.search'}}searching{{/link-to}},
+                browsing your {{#link-to 'home.songs'}}saved songs{{/link-to}},
+                or browsing your {{#link-to 'home.playlists'}}playlists{{/link-to}}.
+              </div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    {{else}}
+      <div class="centered row">
+        <div class="ui info message">
+          This node does not have any songs in its queue. Feel free to add some by
+          {{#link-to 'home.search'}}searching{{/link-to}},
+          browsing your {{#link-to 'home.songs'}}saved songs{{/link-to}},
+          or browsing your {{#link-to 'home.playlists'}}playlists{{/link-to}}.
+        </div>
+      </div>
+    {{/if}}
+  </div>
+</div>

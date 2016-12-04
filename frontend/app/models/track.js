@@ -48,10 +48,10 @@ export default Model.extend({
     return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
   }),
 
-    descriptionText: Ember.computed('albumName', 'artists', 'durationMinutesSeconds', function() {
-      return [this.get('albumName'),
-              this.get('artists'),
-              this.get('durationMinutesSeconds')].filter((item) => item).join(' | ');
+  descriptionText: Ember.computed('albumName', 'artists', 'durationMinutesSeconds', function() {
+    return [this.get('albumName'),
+            this.get('artists'),
+            this.get('durationMinutesSeconds')].filter((item) => item).join(' | ');
   })
 
 });

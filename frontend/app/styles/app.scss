@@ -2,6 +2,7 @@ $spotnet-green: #B3FFB3;
 $white: #FFFFFF;
 
 $medium-padding-size: 2em;
+$large-padding-size: 3.5em;
 
 body {
   background-color: $spotnet-green;
@@ -19,8 +20,13 @@ body {
 }
 
 .padded-lr {
-  padding-left: $medium-padding-size;
-  padding-right: $medium-padding-size;
+  padding-left: $medium-padding-size !important;
+  padding-right: $medium-padding-size !important;
+}
+
+.padded-extra-lr {
+  padding-left: $large-padding-size !important;
+  padding-right: $large-padding-size !important;
 }
 
 .tab-item > a {

@@ -17,11 +17,19 @@ export default ApplicationAdapter.extend({
       const { q } = query;
       url += `/search?q=${q}&type=track&`;
     }
+    else if (query.tracksFrom === 'ids') {
+      const { ids } = query;
+      url += `/tracks?ids=${ids}&`
+    }
     else {
       Ember.Logger.log('Unexpected tracksFrom key: ' + query.tracksFrom);
     }
 
-    url += `offset=${query.offset}&limit=${query.limit}`;
+    const { offset, limit } = query;
+    if (offset && limit) {
+      url += `offset=${offset}&limit=${limit}`;
+    }
+
     return url;
   }
 

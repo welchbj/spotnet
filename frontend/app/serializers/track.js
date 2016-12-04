@@ -41,10 +41,14 @@ export default DS.JSONAPISerializer.extend({
       numTracks = payload.total;
     }
     else {
-      normalizedTracks = payload.tracks.items.map((track) => {
-        return this.normalizeTrackObject(track);
-      });
-      numTracks = payload.tracks.total;
+      if ('items' in payload.tracks) {
+        normalizedTracks = payload.tracks.items.map(this.normalizeTrackObject)
+        numTracks = payload.tracks.total;
+      }
+      else {
+        normalizedTracks = payload.tracks.map(this.normalizeTrackObject);
+        numTracks = -1;  // we should know how many we are getting back
+      }
     }
 
     return {
