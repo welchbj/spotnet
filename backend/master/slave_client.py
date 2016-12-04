@@ -91,6 +91,16 @@ class SpotnetSlaveClient(WebSocketWrapper):
                                 [track] +
                                 self.track_queue[1:])
 
+    def remove_track(self, position):
+        """Remove a track from the specified position.
+
+        Notes:
+            Assumes that position is a valid index within this class's
+            ``track_queue`` attribute.
+
+        """
+        self.track_queue.pop(position)
+
     def get_state(self):
         """Return the state of this slave as a JSON-like dict.
 

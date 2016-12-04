@@ -178,9 +178,35 @@ class SpotnetMasterServer(object):
 
                 await self.web_client_host_ws.send_slave_state(
                     slave.get_state())
+
+                self.logger.info(
+                    'Sent updated state back to web client for slave with '
+                    'UUID {}.'.format(uuid))
             elif status == 'remove-track':
-                # TODO
-                pass
+                uuid = data['uuid']
+                slave = self.slave_dict_by_uuid[uuid]
+
+                self.logger.info(
+                    'Received "remove-track" request from web client for slave '
+                    'with UUID {}.'.format(uuid))
+
+                position = data['position']
+                if position > (len(slave.track_queue) - 1):
+                    self.logger.warn(
+                        'Received invalid "position" value {0} from web '
+                        'client when attempting to remove track on slave '
+                        'with UUID {1}.'.format(position, uuid))
+                else:
+                    slave.remove_track(position)
+                    if position == 0 and not slave.is_paused:
+                        await slave.send_track()
+
+                await self.web_client_host_ws.send_slave_state(
+                    slave.get_state())
+
+                self.logger.info(
+                    'Sent updated state back to web client for slave with '
+                    'UUID {}.'.format(uuid))
             else:
                 raise ValueError(
                     'Invalid "status" key "{}" received from web client.'
