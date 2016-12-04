@@ -26,7 +26,7 @@
 
 <div class="ui inverted modal">
   <div class="header">
-    Add to Connected Nodes
+    Queue this Song
   </div>
   <div class="content">
     <div class="ui two column middle aligned very relaxed stackable grid">
@@ -47,29 +47,40 @@
           {{else if spotnet.isLoading}}
             {{spinkit-three-bounce}}
           {{else if spotnet.connectedSlaves}}
-            <p>
-              <div class="ui basic button" {{action 'setAsCurrentTrack'}}>
-                <i class="{{if setAsCurrentTrack 'selected'}} radio icon"></i>
-                Set as current track
-              </div>
-              <div class="ui basic button" {{action 'setAsNextTrack'}}>
-                <i class="{{if setAsNextTrack 'selected'}} radio icon"></i>
-                Set as next track
-              </div>
-            </p>
-            <p>
-              {{#ui-dropdown class="fluid multiple selection" selected=selectedSlaves onChange=(action (mut selectedSlaves))}}
-                <i class="dropdown icon"></i>
-                <div class="default text">Select Connected Nodes</div>
-                <div class="menu">
-                  {{#each spotnet.connectedSlaves as |slave|}}
-                    <div class="item" data-value="{{slave.uuid}}">
-                      {{slave.name}}
-                    </div>
-                  {{/each}}
+            <div class="ui stackable two column grid">
+              <div class="row">
+                <div class="ui info message">
+                  Set this track as either the current track or next one up on a subset of the connected nodes.
                 </div>
-              {{/ui-dropdown}}
-            </p>
+              </div>
+              <div class="row">
+                <div class="column">
+                  <div class="ui basic button" {{action 'setAsCurrentTrack'}}>
+                    <i class="{{if setAsCurrentTrack 'selected'}} radio icon"></i>
+                    Set as current
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="ui basic button" {{action 'setAsNextTrack'}}>
+                    <i class="{{if setAsNextTrack 'selected'}} radio icon"></i>
+                    Set as next
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                {{#ui-dropdown class="fluid multiple selection" selected=selectedSlaves onChange=(action (mut selectedSlaves))}}
+                  <i class="dropdown icon"></i>
+                  <div class="default text">Select Connected Nodes</div>
+                  <div class="menu">
+                    {{#each spotnet.connectedSlaves as |slave|}}
+                      <div class="item" data-value="{{slave.uuid}}">
+                        {{slave.name}}
+                      </div>
+                    {{/each}}
+                  </div>
+                {{/ui-dropdown}}
+              </div>
+            </div>
           {{else}}
             <div class="ui info message">
               There aren't any connected nodes to add tracks to.
