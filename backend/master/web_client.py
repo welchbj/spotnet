@@ -57,7 +57,6 @@ class SpotnetWebClient(WebSocketWrapper):
                 state of a slave node.
 
         """
-        print(slave_data)
         await self.send_json({
             'status': 'send-slave-state',
             'sender': 'master',
