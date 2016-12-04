@@ -21,6 +21,7 @@
                 <h3 class="ui header">Current Song</h3>
                 <img class="ui small bordered rounded centered image" src="{{currentTrack.albumImageUrl}}">
                 <br>
+                <p><em>{{currentTrack.name}}</em></p>
                 <p>{{currentTrack.descriptionText}}</p>
                 <p>
                   {{#if slave.isPaused}}
@@ -32,8 +33,8 @@
                       <i class="yellow pause icon"></i>
                     </div>
                   {{/if}}
-                  <div class="ui basic icon button" {{action 'removeTrack' slave.uuid 0}} data-tooltip="Skip">
-                    <i class="blue forward icon"></i>
+                  <div class="ui basic icon button" {{action 'removeTrack' slave.uuid 0}} data-tooltip="Remove">
+                    <i class="red cancel icon"></i>
                   </div>
                 </p>
               </div>
