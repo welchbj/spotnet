@@ -1,27 +1,37 @@
-<div class="padded-lr">
-  {{#if spotnet.isLoading}}
-    {{spinkit-three-bounce}}
-  {{else}}
-    {{#with model as |slaveUuid|}}
-      {{#with (find-by 'uuid' slaveUuid spotnet.slaves) as |slave|}}
-        <div class="ui grid">
+{{#if spotnet.isLoading}}
+  {{spinkit-three-bounce}}
+{{else}}
+  {{#with model as |slaveUuid|}}
+    {{#with (find-by 'uuid' slaveUuid spotnet.slaves) as |slave|}}
+      {{#if slave.isConnected}}
+        <div class="ui basic segment">
+          <div class="ui icon positive message">
+            <i class="share alternate square icon"></i>
+            <div class="content">
+              <div class="header">Connected</div>
+              <p>This node is connected. View it {{#link-to 'home.connected.view' slave.uuid}}here{{/link-to}}</p>
+            </div>
+          </div>
+        </div>
+      {{else}}
+        <div class="ui padded-lr grid">
           <div class="centered row">
             {{connect-idle-slave-dialog slave=slave}}
           </div>
         </div>
-      {{else}}
-        {{#if spotnet.idleSlaves}}
-          <div class="ui icon warning message">
-            <i class="wifi icon"></i>
-            <div class="content">
-              <div class="header">Whoops!</div>
-              <p>
-                We couldn't find this node on the network. Did it get disconnected?
-              </p>
-            </div>
+      {{/if}}
+    {{else}}
+      {{#if spotnet.idleSlaves}}
+        <div class="ui icon warning message">
+          <i class="wifi icon"></i>
+          <div class="content">
+            <div class="header">Whoops!</div>
+            <p>
+              We couldn't find this node on the network. Did it get disconnected?
+            </p>
           </div>
-        {{/if}}
-      {{/with}}
+        </div>
+      {{/if}}
     {{/with}}
-  {{/if}}
-</div>
+  {{/with}}
+{{/if}}
