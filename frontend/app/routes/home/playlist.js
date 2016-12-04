@@ -11,10 +11,6 @@ export default Ember.Route.extend({
 
   spotify: Ember.inject.service(),
 
-  beforeModel() {
-    this.controllerFor('home').set('activeTab', 'playlists');
-  },
-
   model(params) {
     const store = this.get('store');
     const { page, owner_id, playlist_id } = params;
@@ -36,6 +32,10 @@ export default Ember.Route.extend({
         offset: offset
       })
     });
+  },
+
+  afterModel() {
+    this.controllerFor('home').set('activeTab', 'playlists');
   }
 
 });

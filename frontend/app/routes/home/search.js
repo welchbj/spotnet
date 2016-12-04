@@ -13,10 +13,6 @@ export default Ember.Route.extend({
     }
   },
 
-  beforeModel() {
-    this.controllerFor('home').set('activeTab', 'search');
-  },
-
   model(params) {
     const { q, page } = params;
     if (!q) {
@@ -41,6 +37,10 @@ export default Ember.Route.extend({
 
       return result;
     });
+  },
+
+  afterModel() {
+    this.controllerFor('home').set('activeTab', 'search');
   }
 
 });

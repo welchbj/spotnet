@@ -11,10 +11,6 @@ export default Ember.Route.extend({
 
   spotify: Ember.inject.service(),
 
-  beforeModel() {
-    this.controllerFor('home').set('activeTab', 'songs');
-  },
-
   model(params) {
     const limit = ENV.NUM_SONGS_PER_PAGE;
     const offset = (params.page - 1) * limit;
@@ -24,6 +20,10 @@ export default Ember.Route.extend({
       offset: offset,
       limit: limit
     });
+  },
+
+  afterModel() {
+    this.controllerFor('home').set('activeTab', 'songs');
   }
 
 });
