@@ -1,6 +1,7 @@
 """The Spotnet slave server implementation."""
 
 import asyncio
+import locale
 
 from websockets.exceptions import ConnectionClosed
 
@@ -106,14 +107,17 @@ class SpotnetSlaveServer(object):
         args = ['mopidy', '-o', 'http/port={}'.format(self.mopidy_port),
                           '-o', 'spotify/username={}'.format(username),
                           '-o', 'spotify/password={}'.format(password)]
-
-        self._mopidy_proc = yield from asyncio.subprocess_exec(
+        
+        loop = asyncio.get_event_loop()
+        self._mopidy_proc = yield from loop.subprocess_exec(
             lambda: MopidySpotifyProtocol(login_passed, login_failed),
             *args)
 
+        self.logger.info('Spawned mopidiy subprocess; awaiting login status.')
+
         wait_for_login_passed = asyncio.async(login_passed.wait())
         wait_for_login_failed = asyncio.async(login_failed.wait())
-        done, pending = yield from asyncio.gather(
+        done, pending = yield from asyncio.wait(
             [wait_for_login_passed, wait_for_login_failed],
             return_when=asyncio.FIRST_COMPLETED)
 
@@ -159,13 +163,26 @@ class MopidySpotifyProtocol(asyncio.SubprocessProtocol):
             passes.
         login_failed_Event (asyncio.Event): An event to be set if login
             fails.
+        done_checking (bool): Boolean flag that indicates we don't need
+            to be checking the stream anymore.
 
     """
 
     def __init__(self, login_passed_event, login_failed_event):
         self.login_passed_event = login_passed_event
         self.login_failed_event = login_failed_event
+        self.done_checking = False
 
     def pipe_data_received(self, fd, data):
-        # TODO
-        pass
+        """Parse Spotify login info from the process's stream."""
+        if self.done_checking:
+            return
+
+        text = data.decode(locale.getpreferredencoding(False))
+        if 'Spotify login error' in text:
+            self.login_failed_event.set()
+            self.done_checking = True
+        elif 'Logged in to Spotify in online mode' in text:
+            self.login_passed_event.set()
+            self.done_checking = True
+
