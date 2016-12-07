@@ -74,9 +74,11 @@ class SpotnetSlaveServer(object):
         finally:
             self.logger.info('Closing open WebSocket connections and '
                              'terminating spawned mopidy process.')
-            yield from self._master_ws.close_ws()
-            yield from self._mopidy_ws.close_ws()
-            yield from self._terminate_mopidy_proc()
+            asyncio.wait(
+                [self._master_ws.close_ws(),
+                 self._mopidy_ws.close_ws(),
+                 self._terminate_mopidy_proc()],
+                return_when=asyncio.ALL_COMPLETED)
             self.logger.info('Done running.')
 
     @asyncio.coroutine
@@ -107,7 +109,7 @@ class SpotnetSlaveServer(object):
         args = ['mopidy', '-o', 'http/port={}'.format(self.mopidy_port),
                           '-o', 'spotify/username={}'.format(username),
                           '-o', 'spotify/password={}'.format(password)]
-        
+
         loop = asyncio.get_event_loop()
         self._mopidy_proc = yield from loop.subprocess_exec(
             lambda: MopidySpotifyProtocol(login_passed, login_failed),
@@ -123,12 +125,29 @@ class SpotnetSlaveServer(object):
 
         if wait_for_login_passed in done:
             wait_for_login_failed.cancel()
-            self.logger.info('Login passed.')
+            self.logger.info('Login passed; notifiying master.')
+
+            yield from self._master_ws.send_json({
+                'status': 'login-passed',
+                'sender': 'slave'})
+
             self.is_connected = True
         else:
             wait_for_login_passed.cancel()
-            self.logger.info('Login failed.')
+            self.logger.info('Login failed; notifying master.')
+
+            yield from self._master_ws.send_json({
+                'status': 'login-failed',
+                'sender': 'slave'})
+
             self.is_connected = False
+
+        self.logger.info('Sent to master; opening WebSocket with mopidy.')
+
+        addr = 'ws://localhost:{}/mopidy/ws'.format(self.mopidy_port)
+        yield from self._mopidy_ws.open_ws(addr)
+
+        self.logger.info('mopidy WebSocket successfully opened.')
 
     @asyncio.coroutine
     def _terminate_mopidy_proc(self):
@@ -157,6 +176,10 @@ class SpotnetSlaveServer(object):
 class MopidySpotifyProtocol(asyncio.SubprocessProtocol):
 
     """A class to process mopidy output streams to determine login status.
+
+    Notes:
+        This class is a great example of how poor system design and planning
+        makes your life harder in the long run.
 
     Attributes:
         login_passed_event (asyncio.Event): An event to be set if login

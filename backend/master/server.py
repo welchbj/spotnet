@@ -91,8 +91,6 @@ class SpotnetMasterServer(object):
         except Exception as e:
             self.logger.error('Received unexpected error: ' + repr(e))
         finally:
-            # only clean up slave WebSockets;
-            # web client connections are expected to end frequently
             if ws in self.slave_dict_by_ws:
                 ws_uuid = self.slave_dict_by_ws[ws].uuid
 
@@ -147,11 +145,21 @@ class SpotnetMasterServer(object):
                 yield from slave.send_credentials(
                     data['name'], data['username'], data['password'])
 
-                # TODO: need to communicate about whether credentials worked
-
                 self.logger.info(
                     'Sent credentials to slave with UUID {0}, assigning '
-                    'name {1}.'.format(slave.uuid, slave.name))
+                    'name {1}.'.format(uuid, slave.name))
+
+                did_login = yield from slave.recv_login_resp()
+                if did_login:
+                    self.logger.info('Passed login on slave with UUID {}.'
+                                     .format(uuid))
+                    yield from self.web_client_host_ws.send_login_passed(
+                        uuid)
+                else:
+                    self.logger.info('Failed login on slave with UUID {}.'
+                                     .format(uuid))
+                    yield from self.web_client_host_ws.send_login_failed(
+                        uuid)
             elif status == 'add-track':
                 uuid = data['uuid']
                 slave = self.slave_dict_by_uuid[uuid]

@@ -69,3 +69,35 @@ class SpotnetWebClient(WebSocketWrapper):
             'data': {
                 'slave': slave_data
             }})
+
+    @asyncio.coroutine
+    def send_login_passed(self, slave_uuid):
+        """Coroutine to send that the login passed.
+
+        Args:
+            slave_uuid (str): The slave's uuid.
+
+        """
+        yield from self.send_json({
+            'status': 'login-passed',
+            'sender': 'master',
+            'data': {
+                'uuid': slave_uuid
+            }})
+
+    @asyncio.coroutine
+    def send_login_failed(self, slave_uuid):
+        """Coroutine to send that the login failed.
+
+        Args:
+            slave_uuid (str): The slave's uuid.
+
+        """
+        yield from self.send_json({
+            'status': 'login-failed',
+            'sender': 'master',
+            'data': {
+                'uuid': slave_uuid
+            }})
+
+
