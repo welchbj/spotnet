@@ -131,9 +131,12 @@ class SpotnetSlaveServer(object):
                 'status': 'login-passed',
                 'sender': 'slave'})
 
-            self.logger.info('Opening WebSocket with mopidy.')
             addr = 'ws://localhost:{}/mopidy/ws'.format(self.mopidy_port)
+            self.logger.info('Attempting to open WebSocket with mopidy at '
+                             'address {}'.format(addr))
+
             yield from self._mopidy_ws.open_ws(addr)
+
             self.logger.info('mopidy WebSocket successfully opened.')
             self.is_connected = True
         else:
