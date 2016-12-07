@@ -125,6 +125,12 @@ export default Ember.Service.extend({
         const { uuid } = data;
         this.removeSlave(uuid);
         break;
+      case 'login-passed':
+        Ember.Logger.log('Login passed!');
+        break;
+      case 'login-failed':
+        Ember.Logger.log('Login failed!');
+        break
       default:
         Ember.Logger.log('Received invalid status on master server ' +
                          'WebSocket connection.');

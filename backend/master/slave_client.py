@@ -60,29 +60,6 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.name = name
 
     @asyncio.coroutine
-    def recv_login_resp(self):
-        """Coroutine to receive the login status, after passing credentials.
-
-        Returns:
-            bool: True if login was succesful, otherwise False.
-
-        Raises:
-            ValueError: If an unexpected message is received.
-
-        """
-        resp = yield from self.recv_json()
-        status = resp['status']
-
-        if status == 'login-passed':
-            self.is_connected = True
-        elif status == 'login-failed':
-            self.name = None
-        else:
-            raise ValueError('Invalid login response received.')
-
-        return self.is_connected
-
-    @asyncio.coroutine
     def send_pause(self):
         """Coroutine to tell the slave server to pause audio playback."""
         # TODO

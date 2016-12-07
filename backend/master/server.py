@@ -148,18 +148,6 @@ class SpotnetMasterServer(object):
                 self.logger.info(
                     'Sent credentials to slave with UUID {0}, assigning '
                     'name {1}.'.format(uuid, slave.name))
-
-                did_login = yield from slave.recv_login_resp()
-                if did_login:
-                    self.logger.info('Passed login on slave with UUID {}.'
-                                     .format(uuid))
-                    yield from self.web_client_host_ws.send_login_passed(
-                        uuid)
-                else:
-                    self.logger.info('Failed login on slave with UUID {}.'
-                                     .format(uuid))
-                    yield from self.web_client_host_ws.send_login_failed(
-                        uuid)
             elif status == 'add-track':
                 uuid = data['uuid']
                 slave = self.slave_dict_by_uuid[uuid]
@@ -250,8 +238,34 @@ class SpotnetMasterServer(object):
 
         while True:
             # keep WebSocket alive, but don't expect slave to send anything
-            resp = yield from ws.recv()
-            self.logger.info('Received slave response {}.'.format(resp))
+            resp = yield from slave.recv_json()
+            status = resp.get('status')
+
+            if status == 'login-passed':
+                self.logger.info('Login passed on slave with UUID {}.'
+                                 .format(slave.uuid))
+
+                slave.is_connected = True
+
+                if self.web_client_host_ws is not None:
+                    yield from self.web_client_host_ws.send_login_passed(
+                        slave.uuid)
+                    self.logger.info('Notified web client of passed login.')
+            elif status == 'login-failed':
+                self.logger.info('Login failed on slave with UUID {}.'
+                                 .format(slave.uuid))
+
+                slave.is_connected = False
+                slave.name = None
+
+                if self.web_client_host_ws is not None:
+                    yield from self.web_client_host_ws.send_login_failed(
+                        slave.uuid)
+                    self.logger.info('Notified web client of failed login.')
+            elif status is None:
+                raise ValueError('No "status" key in slave request.')
+            else:
+                raise ValueError('Invalid "status" key in slave request.')
 
     @asyncio.coroutine
     def _advertise(self):
