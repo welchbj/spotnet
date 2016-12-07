@@ -61,11 +61,11 @@ class SpotnetMasterServer(object):
         if self.do_advertise:
             # TODO: implement advertisement properly
             run_forever_coro = asyncio.gather(
-                asyncio.ensure_future(self._advertse()),
-                asyncio.ensure_future(ws_coro))
+                asyncio.async(self._advertse()),
+                asyncio.async(ws_coro))
         else:
             self.logger.info('Skipping service advertisement.')
-            run_forever_coro = asyncio.ensure_future(ws_coro)
+            run_forever_coro = asyncio.async(ws_coro)
 
         return run_forever_coro
 
