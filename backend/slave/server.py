@@ -1,7 +1,6 @@
 """The Spotnet slave server implementation."""
 
 import asyncio
-import locale
 
 from websockets.exceptions import ConnectionClosed
 
@@ -122,7 +121,7 @@ class SpotnetSlaveServer(object):
                 break
             elif b'Logged in to Spotify in online mode' in line:
                 did_login = True
-                break   
+                break
 
         if did_login:
             self.logger.info('Login passed; notifiying master.')
