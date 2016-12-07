@@ -153,7 +153,6 @@ class SpotnetSlaveServer(object):
         """Terminate the spawned mopidy process."""
         if self._mopidy_proc is not None:
             self._mopidy_proc.terminate()
-            yield from self._mopidy_proc.wait()
             self._mopidy_proc = None
 
     @asyncio.coroutine
