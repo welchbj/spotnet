@@ -147,6 +147,8 @@ class SpotnetMasterServer(object):
                 yield from slave.send_credentials(
                     data['name'], data['username'], data['password'])
 
+                # TODO: need to communicate about whether credentials worked
+
                 self.logger.info(
                     'Sent credentials to slave with UUID {0}, assigning '
                     'name {1}.'.format(slave.uuid, slave.name))

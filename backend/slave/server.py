@@ -1,9 +1,7 @@
 """The Spotnet slave server implementation."""
 
 import asyncio
-import spotify
 
-from spotify import SessionEvent as SpotifyEvent
 from websockets.exceptions import ConnectionClosed
 
 from ..utils import get_configured_logger, WebSocketWrapper
@@ -19,6 +17,7 @@ class SpotnetSlaveServer(object):
         is_connected (bool): Boolean indicating whether this slave has
             successfully set up its Spotify credentials and is ready for
             playback.
+        mopidy_port (int): The port on which to run the mopidy process.
         logger (logging.Logger): A logger instance for this server.
 
     Raises:
@@ -27,16 +26,14 @@ class SpotnetSlaveServer(object):
 
     """
 
-    def __init__(self, do_discover, master_address=None):
+    def __init__(self, do_discover, master_address=None, mopidy_port=8888):
         self.is_connected = False
+        self.mopidy_port = mopidy_port
         self.logger = get_configured_logger(SPOTNET_SLAVE_LOGGER_NAME)
 
-        self._spotify_session = None
-        self._init_spotify_session()
-        self._spotify_login_failed = asyncio.Event()
-        self._spotify_login_passed = asyncio.Event()
-        self._spotify_track_ended = asyncio.Event()
-        self._master_server_ws = WebSocketWrapper()
+        self._master_ws = WebSocketWrapper()
+        self._mopidy_ws = WebSocketWrapper()
+        self._mopidy_proc = None
 
         if do_discover:
             self.master_address = self._discover_master_server()
@@ -50,45 +47,44 @@ class SpotnetSlaveServer(object):
     def run_forever(self):
         """Run the slave server."""
         self.logger.info('Beginning execution of Spotnet slave server.')
-        was_forcibly_closed = False
 
         try:
-            yield from self._master_server_ws.open_ws(self.master_address)
+            yield from self._master_ws.open_ws(self.master_address)
 
+            # send message to master to join the network
+            yield from self._master_ws.send_json({
+                'status': 'request-connect',
+                'sender': 'slave'})
+
+            # wait for credentials
             while not self.is_connected:
                 yield from self._await_connected()
 
-            # TODO: send status message to master about being actually connected
-
+            # TODO: handle main requests
             while True:
                 yield from self._run()
         except ConnectionClosed as e:
             self.logger.warn('Master server unexpectedly closed WebSocket '
                              'connection.')
-            was_forcibly_closed = True
         except ValueError as e:
             self.logger.error('Invalid message received: ' + repr(e))
         except Exception as e:
             self.logger.error('Received unexpected error: ' + repr(e))
         finally:
-            if not was_forcibly_closed:
-                self.logger.info('Closing WebSocket connection.')
-                # TODO: may have to close other ws
-                yield from self._master_server_ws.close_ws()
-
+            self.logger.info('Closing open WebSocket connections and '
+                             'terminating spawned mopidy process.')
+            yield from self._master_ws.close_ws()
+            yield from self._mopidy_ws.close_ws()
+            yield from self._terminate_mopidy_proc()
             self.logger.info('Done running.')
 
     @asyncio.coroutine
     def _await_connected(self):
         """Coroutine to perform the slave connection flow."""
-        yield from self._master_server_ws.send_json({
-            'status': 'request-connect',
-            'sender': 'slave'})
-
         # wait for credentials to be sent from the master server
-        self.logger.info('Established connection to master sever; awaiting '
-                         'credentials.')
-        resp = yield from self._master_server_ws.recv_json()
+        self.logger.info('Established initial connection with master sever; '
+                         'awaiting credentials.')
+        resp = yield from self._master_ws.recv_json()
 
         status = resp.get('status')
         if status != 'send-credentials':
@@ -104,26 +100,39 @@ class SpotnetSlaveServer(object):
         self.logger.info('Received Spotify username "{}" from master; not '
                          'displaying password here.'.format(username))
 
-        self._spotify_session.login(username, password)
+        login_passed = asyncio.Event()
+        login_failed = asyncio.Event()
 
-        # wait for login pass/fail
-        login_passed_task = asyncio.async(self._spotify_login_passed.wait())
-        login_failed_task = asyncio.async(self._spotify_login_failed.wait())
-        done, pending = yield from asyncio.wait(
-            [login_passed_task, login_failed_task],
+        args = ['mopidy', '-o', 'http/port={}'.format(self.mopidy_port),
+                          '-o', 'spotify/username={}'.format(username),
+                          '-o', 'spotify/password={}'.format(password)]
+
+        self._mopidy_proc = yield from asyncio.subprocess_exec(
+            lambda: MopidySpotifyProtocol(login_passed, login_failed),
+            *args)
+
+        wait_for_login_passed = asyncio.async(login_passed.wait())
+        wait_for_login_failed = asyncio.async(login_failed.wait())
+        done, pending = yield from asyncio.gather(
+            [wait_for_login_passed, wait_for_login_failed],
             return_when=asyncio.FIRST_COMPLETED)
 
-        if login_passed_task in done:
-            # login passed
-            login_failed_task.cancel()
+        if wait_for_login_passed in done:
+            wait_for_login_failed.cancel()
+            self.logger.info('Login passed.')
             self.is_connected = True
         else:
-            # login failed
-            login_passed_task.cancel()
+            wait_for_login_passed.cancel()
             self.logger.info('Login failed.')
+            self.is_connected = False
 
-        self._spotify_login_failed.clear()
-        self._spotify_login_passed.clear()
+    @asyncio.coroutine
+    def _terminate_mopidy_proc(self):
+        """Terminate the spawned mopidy process."""
+        if self._mopidy_proc is not None:
+            self._mopidy_proc.terminate()
+            yield from self._mopidy_proc.wait()
+            self._mopidy_proc = None
 
     @asyncio.coroutine
     def _run(self):
@@ -140,30 +149,23 @@ class SpotnetSlaveServer(object):
         # TODO
         return None
 
-    def _init_spotify_session(self):
-        """Configure the Libspotify session."""
-        self._spotify_session = spotify.Session()
 
-        loop = spotify.EventLoop(self._spotify_session)
-        loop.start()
+class MopidySpotifyProtocol(asyncio.SubprocessProtocol):
 
-        spotify.AlsaSink(self._spotify_session)
-        self._spotify_session.on(
-            SpotifyEvent.LOGGED_IN, self._on_login)
-        self._spotify_session.on(
-            SpotifyEvent.END_OF_TRACK, self._on_end_of_track)
+    """A class to process mopidy output streams to determine login status.
 
-    @asyncio.coroutine
-    def _wait_for_login_passed(self):
+    Attributes:
+        login_passed_event (asyncio.Event): An event to be set if login
+            passes.
+        login_failed_Event (asyncio.Event): An event to be set if login
+            fails.
+
+    """
+
+    def __init__(self, login_passed_event, login_failed_event):
+        self.login_passed_event = login_passed_event
+        self.login_failed_event = login_failed_event
+
+    def pipe_data_received(self, fd, data):
+        # TODO
         pass
-
-    def _on_login(self, session, error_type):
-        """Libspotify login event handler."""
-        if error_type is spotify.ErrorType.Ok:
-            self._spotify_login_passed.set()
-        else:
-            self._spotify_login_failed.set()
-
-    def _on_end_of_track(self, session):
-        """Libspotify end of track event handler."""
-        self._on_end_of_track.set()
