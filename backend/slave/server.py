@@ -16,6 +16,9 @@ class SpotnetSlaveServer(object):
     Attributes:
         master_address (str): The address pointing to the master server.
         mopidy_port (int): The port to run the mopidy server on.
+        is_connected (bool): Boolean indicating whether this slave has
+            successfully set up its Spotify credentials and is ready for
+            playback.
         logger (logging.Logger): A logger instance for this server.
 
     Raises:
@@ -30,7 +33,7 @@ class SpotnetSlaveServer(object):
 
         self.mopidy_port = mopidy_port
 
-        self._has_connected = False
+        self.is_connected = False
         self.logger = get_configured_logger(SPOTNET_SLAVE_LOGGER_NAME)
 
         if do_discover:
