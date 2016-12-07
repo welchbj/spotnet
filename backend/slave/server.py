@@ -144,7 +144,7 @@ class SpotnetSlaveServer(object):
         """Configure the Libspotify session."""
         self._spotify_session = spotify.Session()
 
-        loop = spotify.EventLoop()
+        loop = spotify.EventLoop(self._spotify_session)
         loop.start()
 
         spotify.AlsaSink(self._spotify_session)
