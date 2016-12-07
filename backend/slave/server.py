@@ -131,6 +131,10 @@ class SpotnetSlaveServer(object):
                 'status': 'login-passed',
                 'sender': 'slave'})
 
+            self.logger.info('Opening WebSocket with mopidy.')
+            addr = 'ws://localhost:{}/mopidy/ws'.format(self.mopidy_port)
+            yield from self._mopidy_ws.open_ws(addr)
+            self.logger.info('mopidy WebSocket successfully opened.')
             self.is_connected = True
         else:
             wait_for_login_passed.cancel()
@@ -140,14 +144,9 @@ class SpotnetSlaveServer(object):
                 'status': 'login-failed',
                 'sender': 'slave'})
 
+            self.logger.info('Terminating mopidy process.')
+            yield from self._terminate_mopidy_proc()
             self.is_connected = False
-
-        self.logger.info('Sent to master; opening WebSocket with mopidy.')
-
-        addr = 'ws://localhost:{}/mopidy/ws'.format(self.mopidy_port)
-        yield from self._mopidy_ws.open_ws(addr)
-
-        self.logger.info('mopidy WebSocket successfully opened.')
 
     @asyncio.coroutine
     def _terminate_mopidy_proc(self):
