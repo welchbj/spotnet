@@ -111,7 +111,7 @@ class SpotnetSlaveServer(object):
                           '-o', 'spotify/password={}'.format(password)]
 
         loop = asyncio.get_event_loop()
-        self._mopidy_proc = yield from loop.subprocess_exec(
+        self._mopidy_proc, _ = yield from loop.subprocess_exec(
             lambda: MopidySpotifyProtocol(login_passed, login_failed),
             *args)
 
@@ -153,7 +153,6 @@ class SpotnetSlaveServer(object):
         """Terminate the spawned mopidy process."""
         if self._mopidy_proc is not None:
             self._mopidy_proc.terminate()
-            yield from self._mopidy_proc.wait()
             self._mopidy_proc = None
 
     @asyncio.coroutine
@@ -201,6 +200,9 @@ class MopidySpotifyProtocol(asyncio.SubprocessProtocol):
             return
 
         text = data.decode(locale.getpreferredencoding(False))
+
+        print(text)
+
         if 'Spotify login error' in text:
             self.login_failed_event.set()
             self.done_checking = True
