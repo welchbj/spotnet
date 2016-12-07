@@ -100,7 +100,7 @@ class SpotnetSlaveServer(object):
         password = data['password']
 
         self.logger.info('Received Spotify username "{}" from master; not '
-                         'displaying password here.'.format(self.username))
+                         'displaying password here.'.format(username))
 
         if self._run_mopidy(username, password):
             # TODO: spawn mopidy process, make sure it starts ok, init ws
