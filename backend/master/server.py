@@ -56,7 +56,7 @@ class SpotnetMasterServer(object):
 
     def get_run_forever_coro(self):
         """Get a Task to run this server."""
-        ws_coro = websockets.serve(self._ws_handler, 'localhost', self.port)
+        ws_coro = websockets.serve(self._ws_handler, '', self.port)
 
         if self.do_advertise:
             # TODO: implement advertisement properly
