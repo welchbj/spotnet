@@ -38,7 +38,8 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.counted_votes_for_skip = 0
         self.first_connected_at = datetime.datetime.now().isoformat()
 
-    async def send_credentials(self, name, username, password):
+    @asyncio.coroutine
+    def send_credentials(self, name, username, password):
         """Coroutine to send credentials and node name to connect the slave.
 
         Args:
@@ -47,7 +48,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
             password (str): The Spotify password to use in authentication.abs
 
         """
-        await self.send_json({
+        yield from self.send_json({
             'status': 'send-credentials',
             'sender': 'master',
             'data': {
@@ -58,17 +59,20 @@ class SpotnetSlaveClient(WebSocketWrapper):
         self.name = name
         self.is_connected = True
 
-    async def send_pause(self):
+    @asyncio.coroutine
+    def send_pause(self):
         """Coroutine to tell the slave server to pause audio playback."""
         # TODO
         pass
 
-    async def send_play(self):
+    @asyncio.coroutine
+    def send_play(self):
         """Coroutine to tell the slave server to resume audio playback."""
         # TODO
         pass
 
-    async def send_track(self):
+    @asyncio.coroutine
+    def send_track(self):
         """Coroutine to send the slave server the next track to play."""
         # TODO
         pass

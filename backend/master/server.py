@@ -69,16 +69,17 @@ class SpotnetMasterServer(object):
 
         return run_forever_coro
 
-    async def _ws_handler(self, ws, path):
+    @asyncio.coroutine
+    def _ws_handler(self, ws, path):
         """Base WebSocket coroutine, to interface with websockets library."""
         try:
-            data = await ws.recv()
+            data = yield from ws.recv()
             json_dict = json.loads(data)
             sender = json_dict.get('sender')
             if sender == 'slave':
-                await self._handle_slave_connection(ws, json_dict)
+                yield from self._handle_slave_connection(ws, json_dict)
             elif sender == 'web-client':
-                await self._handle_web_client_connection(ws, json_dict)
+                yield from self._handle_web_client_connection(ws, json_dict)
             elif sender is None:
                 raise ValueError('No "sender" entry in request.')
             else:
@@ -103,14 +104,15 @@ class SpotnetMasterServer(object):
 
                 if self.web_client_host_ws is not None:
                     # we need to notify the web client of the disonnected slave
-                    await self.web_client_host_ws.remove_slave(ws_uuid)
+                    yield from self.web_client_host_ws.remove_slave(ws_uuid)
                     self.logger.info('Sent web client notice to remove slave '
                                      'with uuid {}.'.format(ws_uuid))
             else:
                 self.logger.info('Web client WebSocket disconnected.')
                 self.web_client_host_ws = None
 
-    async def _handle_web_client_connection(self, ws, json_dict):
+    @asyncio.coroutine
+    def _handle_web_client_connection(self, ws, json_dict):
         """Coroutine to handle a WebSocket connection from the web client.
 
         Args:
@@ -125,12 +127,12 @@ class SpotnetMasterServer(object):
         self.web_client_host_ws = SpotnetWebClient(ws)
 
         state_json = self._get_state()
-        await self.web_client_host_ws.send_state(state_json)
+        yield from self.web_client_host_ws.send_state(state_json)
 
         self.logger.info('Sent system state to web client.')
 
         while True:
-            resp = await self.web_client_host_ws.recv_json()
+            resp = yield from self.web_client_host_ws.recv_json()
             status = resp.get('status')
             data = resp.get('data')
 
@@ -142,7 +144,7 @@ class SpotnetMasterServer(object):
                 uuid = data['uuid']
                 slave = self.slave_dict_by_uuid[uuid]
 
-                await slave.send_credentials(
+                yield from slave.send_credentials(
                     data['name'], data['username'], data['password'])
 
                 self.logger.info(
@@ -164,7 +166,7 @@ class SpotnetMasterServer(object):
                         slave.prepend_track(track)
                     else:
                         slave.replace_first_track(track)
-                        await slave.send_track()
+                        yield from slave.send_track()
                 elif position == 'next':
                     slave.set_next_track(track)
                 else:
@@ -176,7 +178,7 @@ class SpotnetMasterServer(object):
                     'Added track with uri "{0}" on slave with UUID {1}.'
                     .format(track['uri'], uuid))
 
-                await self.web_client_host_ws.send_slave_state(
+                yield from self.web_client_host_ws.send_slave_state(
                     slave.get_state())
 
                 self.logger.info(
@@ -199,9 +201,9 @@ class SpotnetMasterServer(object):
                 else:
                     slave.remove_track(position)
                     if position == 0 and not slave.is_paused:
-                        await slave.send_track()
+                        yield from slave.send_track()
 
-                await self.web_client_host_ws.send_slave_state(
+                yield from self.web_client_host_ws.send_slave_state(
                     slave.get_state())
 
                 self.logger.info(
@@ -212,7 +214,8 @@ class SpotnetMasterServer(object):
                     'Invalid "status" key "{}" received from web client.'
                     .format(status))
 
-    async def _handle_slave_connection(self, ws, json_dict):
+    @asyncio.coroutine
+    def _handle_slave_connection(self, ws, json_dict):
         """Coroutine to handle a WebSocket connection from a slave server.
 
         Args:
@@ -232,15 +235,16 @@ class SpotnetMasterServer(object):
 
         if self.web_client_host_ws is not None:
             # need to notify web client of newly connected slave
-            await self.web_client_host_ws.add_slave(slave.get_state())
+            yield from self.web_client_host_ws.add_slave(slave.get_state())
             self.logger.info('Sent request to web client to add slave.')
 
         while True:
             # keep WebSocket alive, but don't expect slave to send anything
-            resp = await ws.recv()
+            resp = yield from ws.recv()
             self.logger.info('Received slave response {}.'.format(resp))
 
-    async def _advertise(self):
+    @asyncio.coroutine
+    def _advertise(self):
         """Advertise this service via Zeroconf."""
         # TODO
         pass

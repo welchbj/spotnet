@@ -1,5 +1,6 @@
 """A class for wrapping a WebSocket."""
 
+import asyncio
 import json
 import websockets
 
@@ -18,7 +19,8 @@ class WebSocketWrapper(object):
     def __init__(self, ws=None):
         self.ws = ws
 
-    async def open_ws(self, address):
+    @asyncio.coroutine
+    def open_ws(self, address):
         """Coroutine to open a WebSocket to the specified address.
 
         This method sets the ``ws`` attribute of this class to an open
@@ -31,17 +33,19 @@ class WebSocketWrapper(object):
         if self.ws is not None:
             return
         else:
-            self.ws = await websockets.connect('ws://' + address)
+            self.ws = yield from websockets.connect('ws://' + address)
 
-    async def close_ws(self):
+    @asyncio.coroutine
+    def close_ws(self):
         """Coroutine to close the current WebSocket connection."""
         if self.ws is None:
             return
         else:
-            await self.ws.close()
+            yield from self.ws.close()
             self.ws = None
 
-    async def send_json(self, json_dict):
+    @asyncio.coroutine
+    def send_json(self, json_dict):
         """Send JSON over this class's WebSocket.
 
         Args:
@@ -49,15 +53,16 @@ class WebSocketWrapper(object):
 
         """
         json_payload = json.dumps(json_dict)
-        await self.ws.send(json_payload)
+        yield from self.ws.send(json_payload)
 
-    async def recv_json(self):
+    @asyncio.coroutine
+    def recv_json(self):
         """Receive JSON over this class's WebScoket.
 
         Returns:
             dict: A JSON-like dict.
 
         """
-        resp = await self.ws.recv()
+        resp = yield from self.ws.recv()
         json_resp = json.loads(resp)
         return json_resp
