@@ -1,5 +1,6 @@
 """A client implementation for the Spotnet slave server."""
 
+import asyncio
 import datetime
 import uuid
 

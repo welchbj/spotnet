@@ -56,6 +56,7 @@ def main():
     """The main routine to run the client.
     Returns:
         int: The status code of the routine.
+
     """
     try:
         opts = get_parsed_args()
