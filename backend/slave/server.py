@@ -25,8 +25,6 @@ class SpotnetSlaveServer(object):
     """
 
     def __init__(self, do_discover, master_address=None, mopidy_port=8888):
-        super(SpotnetSlaveServer, self).__init__()
-
         self._master_server_ws = WebSocketWrapper()
         self._mopidy_server_ws = WebSocketWrapper()
 
@@ -70,7 +68,8 @@ class SpotnetSlaveServer(object):
         finally:
             if not was_forcibly_closed:
                 self.logger.info('Closing WebSocket connection.')
-                yield from self.close_ws()
+                # TODO: may have to close other ws
+                yield from self._master_server_ws.close_ws()
 
             self.logger.info('Done running.')
 
