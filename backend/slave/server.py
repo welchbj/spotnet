@@ -1,8 +1,9 @@
 """The Spotnet slave server implementation."""
 
 import asyncio
+import spotify
 
-from subprocess import PIPE, Popen
+from spotify import SessionEvent as SpotifyEvent
 from websockets.exceptions import ConnectionClosed
 
 from ..utils import get_configured_logger, WebSocketWrapper
@@ -15,7 +16,6 @@ class SpotnetSlaveServer(object):
 
     Attributes:
         master_address (str): The address pointing to the master server.
-        mopidy_port (int): The port to run the mopidy server on.
         is_connected (bool): Boolean indicating whether this slave has
             successfully set up its Spotify credentials and is ready for
             playback.
@@ -27,14 +27,16 @@ class SpotnetSlaveServer(object):
 
     """
 
-    def __init__(self, do_discover, master_address=None, mopidy_port=8888):
-        self._master_server_ws = WebSocketWrapper()
-        self._mopidy_server_ws = WebSocketWrapper()
-
-        self.mopidy_port = mopidy_port
-
+    def __init__(self, do_discover, master_address=None):
         self.is_connected = False
         self.logger = get_configured_logger(SPOTNET_SLAVE_LOGGER_NAME)
+
+        self._spotify_session = None
+        self._init_spotify_session()
+        self._spotify_login_failed = asyncio.Event()
+        self._spotify_login_passed = asyncio.Event()
+        self._spotify_track_ended = asyncio.Event()
+        self._master_server_ws = WebSocketWrapper()
 
         if do_discover:
             self.master_address = self._discover_master_server()
@@ -102,41 +104,26 @@ class SpotnetSlaveServer(object):
         self.logger.info('Received Spotify username "{}" from master; not '
                          'displaying password here.'.format(username))
 
-        if self._run_mopidy_proc(username, password):
-            # TODO: spawn mopidy process, make sure it starts ok, init ws
-            addr = 'localhost:{}/mopidy/ws'.format(self.mopidy_port)
-            yield from self._mopidy_server_ws.open_ws(addr)
+        self._spotify_session.login(username, password)
+
+        # wait for login pass/fail
+        login_passed_task = asyncio.async(self._spotify_login_passed.wait())
+        login_failed_task = asyncio.async(self._spotify_login_failed.wait())
+        done, pending = yield from asyncio.wait(
+            [login_passed_task, login_failed_task],
+            return_when=asyncio.FIRST_COMPLETED)
+
+        if login_passed_task in done:
+            # login passed
+            login_failed_task.cancel()
+            self.is_connected = True
         else:
-            # TODO: send ws login failure back to master
-            pass
+            # login failed
+            login_passed_task.cancel()
+            self.logger.info('Login failed.')
 
-    def _run_mopidy_proc(self, username, password):
-        """Spawn a mopidy server process.
-
-        Notes:
-            This method will set the private ``_mopidy_proc`` and
-            ``_mopidy_ws`` attributes of this class.
-
-        Returns:
-            bool: True if Spotify authentication passed, otherwise false.
-
-        """
-        self.logger.info('Attempting to initialize mopidy server with '
-                         'provided Spotify credentials.')
-
-        args = 'mopidy -o spotify/username={0} -o spotify/password={1}'.format(
-                    username, password)
-        self._mopidy_proc = Popen(args, universal_newlines=True, stdout=PIPE,
-                                  stderr=PIPE)
-
-        # TODO: check out stdout to make sure nothing bad happened
-        print(self._run_mopidy_proc.stdout)
-
-        # TODO: more logging
-        # TODO: update _has_connected
-
-        # we should be good to go now, then. maybe confirm connection?
-        # TODO: send completion message to master
+        self._spotify_login_failed.clear()
+        self._spotify_login_passed.clear()
 
     @asyncio.coroutine
     def _run(self):
@@ -152,3 +139,31 @@ class SpotnetSlaveServer(object):
         """
         # TODO
         return None
+
+    def _init_spotify_session(self):
+        """Configure the Libspotify session."""
+        self._spotify_session = spotify.Session()
+
+        loop = spotify.EventLoop()
+        loop.start()
+
+        spotify.AlsaSink(self._spotify_session)
+        self._spotify_session.on(
+            SpotifyEvent.LOGGED_IN, self._on_login)
+        self._spotify_session.on(
+            SpotifyEvent.END_OF_TRACK, self._on_end_of_track)
+
+    @asyncio.coroutine
+    def _wait_for_login_passed(self):
+        pass
+
+    def _on_login(self, session, error_type):
+        """Libspotify login event handler."""
+        if error_type is spotify.ErrorType.Ok:
+            self._spotify_login_passed.set()
+        else:
+            self._spotify_login_failed.set()
+
+    def _on_end_of_track(self, session):
+        """Libspotify end of track event handler."""
+        self._on_end_of_track.set()
