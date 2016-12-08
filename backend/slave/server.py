@@ -1,6 +1,7 @@
 """The Spotnet slave server implementation."""
 
 import asyncio
+import json
 
 from websockets.exceptions import ConnectionClosed
 
@@ -60,6 +61,8 @@ class SpotnetSlaveServer(object):
             # wait for credentials
             while not self.is_connected:
                 yield from self._await_connected()
+
+            yield from self._mopidy_ws.send_json({'jsonrpc': '2.0', 'id': 1, 'method': 'core.describe'})
 
             while True:
                 yield from self._run()
@@ -133,6 +136,7 @@ class SpotnetSlaveServer(object):
             self.logger.info('Attempting to open WebSocket with mopidy at '
                              'address ws://{}'.format(addr))
 
+            yield from asyncio.sleep(3)
             yield from self._mopidy_ws.open_ws(addr)
 
             self.logger.info('mopidy WebSocket successfully opened.')
@@ -169,8 +173,8 @@ class SpotnetSlaveServer(object):
             # received something from the mopidy process
             master_recv.cancel()
             resp = mopidy_recv.result()
-            print('GOT THE RESPONSE FROM MOPIDY::::')
-            print(resp)
+            self.logger.info('Received message from mopidy:')
+            print(json.dumps(resp, indent=2))
         else:
             # received something from the master server
             mopidy_recv.cancel()
@@ -181,7 +185,11 @@ class SpotnetSlaveServer(object):
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
-                    'method': 'core.playback.play'})
+                    'method': 'core.playback.play',
+                    'params': {
+                        'tl_track': None,
+                        'tlid': None
+                    }})
             elif status == 'pause-audio':
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
