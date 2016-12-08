@@ -233,30 +233,30 @@ class SpotnetSlaveServer(object):
     @asyncio.coroutine
     def _send_next_track(self):
         """Coroutine to tell mopidy to go to the next track."""
-            yield from self._mopidy_ws.send_json({
-                'jsonrpc': '2.0',
-                'id': 1,
-                'method': 'core.playback.next'})
+        yield from self._mopidy_ws.send_json({
+            'jsonrpc': '2.0',
+            'id': 1,
+            'method': 'core.playback.next'})
 
     @asyncio.coroutine
     def _send_stop_playback(self):
         """Coroutine to tell mopidy to stop playback."""
-            yield from self._mopidy_ws.send_json({
-                'jsonrpc': '2.0',
-                'id': 1,
-                'method': 'core.playback.stop'})
+        yield from self._mopidy_ws.send_json({
+            'jsonrpc': '2.0',
+            'id': 1,
+            'method': 'core.playback.stop'})
 
     @asyncio.coroutine
     def _send_play_playback(self):
         """Coroutine to tell mopidy to play playback."""
-            yield from self._mopidy_ws.send_json({
-                'jsonrpc': '2.0',
-                'id': 1,
-                'method': 'core.playback.play',
-                'params': {
-                    'tl_track': None,
-                    'tlid': None
-                }})
+        yield from self._mopidy_ws.send_json({
+            'jsonrpc': '2.0',
+            'id': 1,
+            'method': 'core.playback.play',
+            'params': {
+                'tl_track': None,
+                'tlid': None
+            }})
 
     def _discover_master_server(self):
         """Run service discovery to get the master server address.
