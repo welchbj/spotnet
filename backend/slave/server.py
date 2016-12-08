@@ -74,7 +74,7 @@ class SpotnetSlaveServer(object):
         finally:
             self.logger.info('Closing open WebSocket connections and '
                              'terminating spawned mopidy process.')
-            asyncio.wait(
+            yield from asyncio.wait(
                 [self._master_ws.close_ws(),
                  self._mopidy_ws.close_ws(),
                  self._terminate_mopidy_proc()],
@@ -180,14 +180,7 @@ class SpotnetSlaveServer(object):
 
             status = resp['status']
             if status == 'play-audio':
-                yield from self._mopidy_ws.send_json({
-                    'jsonrpc': '2.0',
-                    'id': 1,
-                    'method': 'core.playback.play',
-                    'params': {
-                        'tl_track': None,
-                        'tlid': None
-                    }})
+                yield from self._send_play_playback()
             elif status == 'pause-audio':
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
@@ -197,6 +190,10 @@ class SpotnetSlaveServer(object):
                 data = resp['data']
                 uri = data['uri']
                 position = data['position']
+
+                self.logger.info('Received request to add track with '
+                                 'uri {0} and position {1}.'
+                                 .format(uri, position))
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
@@ -209,6 +206,10 @@ class SpotnetSlaveServer(object):
                 data = resp['data']
                 uri = data['uri']
                 position = data['position']
+
+                self.logger.info('Received request to remove track with '
+                                 'uri {0} and position {1}.'
+                                 .format(uri, position))
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
@@ -220,9 +221,11 @@ class SpotnetSlaveServer(object):
                     }})
 
                 if position == 0:
+                    yield from self._send_stop_playback()
                     yield from self._send_next_track()
+                    yield from self._send_play_playback()
 
-            yield from self._mopidy_ws_send_json({
+            yield from self._mopidy_ws.send_json({
                 'jsonrpc': '2.0',
                 'id': 1,
                 'method': 'core.tracklist.get_tracks'})
@@ -230,10 +233,30 @@ class SpotnetSlaveServer(object):
     @asyncio.coroutine
     def _send_next_track(self):
         """Coroutine to tell mopidy to go to the next track."""
-        yield from self._mopidy_ws.send_json({
-            'jsonrpc': '2.0',
-            'id': 1,
-            'method': 'core.playback.next'})
+            yield from self._mopidy_ws.send_json({
+                'jsonrpc': '2.0',
+                'id': 1,
+                'method': 'core.playback.next'})
+
+    @asyncio.coroutine
+    def _send_stop_playback(self):
+        """Coroutine to tell mopidy to stop playback."""
+            yield from self._mopidy_ws.send_json({
+                'jsonrpc': '2.0',
+                'id': 1,
+                'method': 'core.playback.stop'})
+
+    @asyncio.coroutine
+    def _send_play_playback(self):
+        """Coroutine to tell mopidy to play playback."""
+            yield from self._mopidy_ws.send_json({
+                'jsonrpc': '2.0',
+                'id': 1,
+                'method': 'core.playback.play',
+                'params': {
+                    'tl_track': None,
+                    'tlid': None
+                }})
 
     def _discover_master_server(self):
         """Run service discovery to get the master server address.
@@ -244,4 +267,3 @@ class SpotnetSlaveServer(object):
         """
         # TODO
         return None
-
