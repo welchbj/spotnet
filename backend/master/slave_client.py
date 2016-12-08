@@ -108,7 +108,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
         """
         track = self.track_queue.pop(position)
         uri = track['uri']
-        yield from self._remove_uri(uri)
+        yield from self._remove_uri(uri, position)
 
     @asyncio.coroutine
     def _send_uri(self, uri, position):
@@ -129,18 +129,20 @@ class SpotnetSlaveClient(WebSocketWrapper):
             }})
 
     @asyncio.coroutine
-    def _remove_uri(self, uri):
+    def _remove_uri(self, uri, position):
         """Coroutine to send a uri to remove from the slave's mopidy tracklist.
 
         Args:
             uri (str): The uri to remove.
+            position (int): The position of the song to remove.
 
         """
         yield from self.send_json({
             'status': 'remove-track',
             'sender': 'slave',
             'data': {
-                'uri': uri
+                'uri': uri,
+                'position': position
             }})
 
     def get_state(self):
