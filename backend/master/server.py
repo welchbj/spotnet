@@ -159,31 +159,13 @@ class SpotnetMasterServer(object):
                 position = data['position']
                 track = data['track']
 
-                if position == 'current':
-                    if slave.is_paused:
-                        slave.prepend_track(track)
-                    else:
-                        slave.replace_first_track(track)
-                        yield from slave.send_track()
-                elif position == 'next':
-                    slave.set_next_track(track)
-                    if not self.is_paused and len(slave.track_queue) == 1:
-                        yield from slave.send_track()
-                else:
-                    raise ValueError(
-                        'Invalid position key "{}" sent in "add-track" '
-                        'directive.'.format(position))
+                yield from slave.add_track(track, position)
 
                 self.logger.info(
                     'Added track with uri "{0}" on slave with UUID {1}.'
                     .format(track['uri'], uuid))
 
-                yield from self.web_client_host_ws.send_slave_state(
-                    slave.get_state())
-
-                self.logger.info(
-                    'Sent updated state back to web client for slave with '
-                    'UUID {}.'.format(uuid))
+                yield from self._send_slave_state(uuid)
             elif status == 'remove-track':
                 uuid = data['uuid']
                 slave = self.slave_dict_by_uuid[uuid]
@@ -193,21 +175,17 @@ class SpotnetMasterServer(object):
                     'with UUID {}.'.format(uuid))
 
                 position = data['position']
-                if position > (len(slave.track_queue) - 1):
+                if position >= len(slave.track_queue):
                     self.logger.warn(
                         'Received invalid "position" value {0} from web '
                         'client when attempting to remove track on slave '
                         'with UUID {1}.'.format(position, uuid))
                 else:
-                    slave.remove_track(position)
-                    if position == 0 and not slave.is_paused:
-                        yield from slave.send_track()
+                    yield from slave.remove_track(position)
+                    self.logger.info('Sent "remove-track" request to slave '
+                                     'with UUID {}.'.format(uuid))
 
                 yield from self._send_slave_state(uuid)
-
-                self.logger.info(
-                    'Sent updated state back to web client for slave with '
-                    'UUID {}.'.format(uuid))
             elif status == 'play-audio':
                 uuid = data['uuid']
                 slave = self.slave_dict_by_uuid[uuid]
@@ -239,9 +217,6 @@ class SpotnetMasterServer(object):
 
                 slave.is_paused = True
                 yield from self._send_slave_state(uuid)
-
-                self.logger.info('Sent slave state for UUID {} back to web '
-                                 'client'.format(uuid))
             else:
                 raise ValueError(
                     'Invalid "status" key "{}" received from web client.'
@@ -272,7 +247,6 @@ class SpotnetMasterServer(object):
             self.logger.info('Sent request to web client to add slave.')
 
         while True:
-            # keep WebSocket alive, but don't expect slave to send anything
             resp = yield from slave.recv_json()
             status = resp.get('status')
 
@@ -310,7 +284,10 @@ class SpotnetMasterServer(object):
         """Coroutine to send slave's state to web client."""
         slave = self.slave_dict_by_uuid[uuid]
         yield from self.web_client_host_ws.send_slave_state(
-                    slave.get_state())
+            slave.get_state())
+
+        self.logger.info('Sent updated state back to web client for slave '
+                         'with UUID {}.'.format(uuid))
 
     @asyncio.coroutine
     def _advertise(self):

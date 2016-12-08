@@ -181,21 +181,34 @@ class SpotnetSlaveServer(object):
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
-                    'method': 'core.playback.resume'})
+                    'method': 'core.playback.play'})
             elif status == 'pause-audio':
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
                     'method': 'core.playback.pause'})
-            elif status == 'next-track':
-                uri = resp['data']['uri']
+            elif status == 'add-track':
+                data = resp['data']
+                uri = data['uri']
+                position = data['position']
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
                     'method': 'core.tracklist.add',
                     'params': {
                         'uris': [uri],
-                        'at_position': 0
+                        'at_position': position
+                    }})
+            elif status == 'remove-track':
+                uri = resp['data']['uri']
+                yield from self._mopidy_ws.send_json({
+                    'jsonrpc': '2.0',
+                    'id': 1,
+                    'method': 'core.tracklist.remove',
+                    'params': {
+                        'criteria': {
+                            'uri': [uri]
+                        }
                     }})
 
     def _discover_master_server(self):
