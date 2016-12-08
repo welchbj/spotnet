@@ -61,7 +61,6 @@ class SpotnetSlaveServer(object):
             while not self.is_connected:
                 yield from self._await_connected()
 
-            # TODO: handle main requests
             while True:
                 yield from self._run()
         except ConnectionClosed as e:
@@ -160,7 +159,19 @@ class SpotnetSlaveServer(object):
     @asyncio.coroutine
     def _run(self):
         """Coroutine to run the slave server's main functionality."""
-        pass
+        mopidy_recv = asyncio.async(self._mopidy_ws.recv_json())
+        master_recv = asyncio.async(self._master_ws.recv_json())
+        done, pending = asyncio.wait([mopidy_recv, master_recv],
+                                     return_when=asyncio.FIRST_COMPLETED)
+
+        if mopidy_recv in done:
+            master_recv.cancel()
+            resp = mopidy_recv.result()
+        else:
+            mopidy_recv.cancel()
+            resp = master_recv.result()
+
+        print(resp)
 
     def _discover_master_server(self):
         """Run service discovery to get the master server address.
