@@ -206,7 +206,9 @@ class SpotnetSlaveServer(object):
                         'at_position': position
                     }})
             elif status == 'remove-track':
-                uri = resp['data']['uri']
+                data = resp['data']
+                uri = data['uri']
+                position = data['position']
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
@@ -217,10 +219,21 @@ class SpotnetSlaveServer(object):
                         }
                     }})
 
+                if position == 0:
+                    yield from self._send_next_track()
+
             yield from self._mopidy_ws_send_json({
                 'jsonrpc': '2.0',
                 'id': 1,
                 'method': 'core.tracklist.get_tracks'})
+
+    @asyncio.coroutine
+    def _send_next_track(self):
+        """Coroutine to tell mopidy to go to the next track."""
+        yield from self._mopidy_ws.send_json({
+            'jsonrpc': '2.0',
+            'id': 1,
+            'method': 'core.playback.next'})
 
     def _discover_master_server(self):
         """Run service discovery to get the master server address.
