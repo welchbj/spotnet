@@ -63,7 +63,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
     def send_pause(self):
         """Coroutine to tell the slave server to pause audio playback."""
         yield from self.send_json({
-            'status': 'play-audio',
+            'status': 'pause-audio',
             'sender': 'master'})
 
     @asyncio.coroutine

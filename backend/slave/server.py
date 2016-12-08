@@ -159,19 +159,40 @@ class SpotnetSlaveServer(object):
     @asyncio.coroutine
     def _run(self):
         """Coroutine to run the slave server's main functionality."""
+
+
+        yield from self._mopidy_ws.send_json({
+            'jsonrpc': '2.0',
+            'method': 'core.describe'
+        })
+
+
         mopidy_recv = asyncio.async(self._mopidy_ws.recv_json())
         master_recv = asyncio.async(self._master_ws.recv_json())
-        done, pending = asyncio.wait([mopidy_recv, master_recv],
-                                     return_when=asyncio.FIRST_COMPLETED)
+        done, pending = yield from asyncio.wait(
+                            [mopidy_recv, master_recv],
+                            return_when=asyncio.FIRST_COMPLETED)
 
         if mopidy_recv in done:
+            # received something from the mopidy process
             master_recv.cancel()
             resp = mopidy_recv.result()
+            print(resp)
         else:
+            # received something from the master server
             mopidy_recv.cancel()
             resp = master_recv.result()
 
-        print(resp)
+            status = resp['status']
+            if status == 'play-audio':
+                # TODO: tell to play audio
+                pass
+            elif status == 'pause-audio':
+                # TODO: tell to pause audio
+                pass
+            elif status == 'next-track':
+                # TODO: tell next track
+                pass
 
     def _discover_master_server(self):
         """Run service discovery to get the master server address.
