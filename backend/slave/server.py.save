@@ -62,6 +62,8 @@ class SpotnetSlaveServer(object):
             while not self.is_connected:
                 yield from self._await_connected()
 
+            yield from self._mopidy_ws.send_json({'jsonrpc': '2.0', 'id': 1, 'method': 'core.describe'})
+
             while True:
                 yield from self._run()
         except ConnectionClosed as e:
@@ -134,7 +136,6 @@ class SpotnetSlaveServer(object):
             self.logger.info('Attempting to open WebSocket with mopidy at '
                              'address ws://{}'.format(addr))
 
-            yield from asyncio.sleep(3)
             yield from self._mopidy_ws.open_ws(addr)
 
             self.logger.info('mopidy WebSocket successfully opened.')
@@ -183,11 +184,7 @@ class SpotnetSlaveServer(object):
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
-                    'method': 'core.playback.play',
-                    'params': {
-                        'tl_track': None,
-                        'tlid': None
-                    }})
+                    'method': 'core.playback.play'})
             elif status == 'pause-audio':
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
@@ -216,11 +213,6 @@ class SpotnetSlaveServer(object):
                             'uri': [uri]
                         }
                     }})
-
-            yield from self._mopidy_ws.send_json({
-                'jsonrpc': '2.0',
-                'id': 1,
-                'method': 'core.tracklist.get_tracks'})
 
     def _discover_master_server(self):
         """Run service discovery to get the master server address.
