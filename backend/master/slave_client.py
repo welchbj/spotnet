@@ -143,24 +143,6 @@ class SpotnetSlaveClient(WebSocketWrapper):
                 'uri': uri
             }})
 
-    def prepend_track(self, track):
-        """Add a track to the beginnig of the queue."""
-        self.track_queue = [track] + self.track_queue
-
-    def replace_first_track(self, track):
-        if not self.track_queue:
-            self.track_queue.append(track)
-        else:
-            self.track_queue[0] = track
-
-    def set_next_track(self, track):
-        if not self.track_queue:
-            self.track_queue.append(track)
-        else:
-            self.track_queue = (self.track_queue[:1] +
-                                [track] +
-                                self.track_queue[1:])
-
     def get_state(self):
         """Return the state of this slave as a JSON-like dict.
 

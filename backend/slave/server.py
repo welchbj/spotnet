@@ -62,8 +62,6 @@ class SpotnetSlaveServer(object):
             while not self.is_connected:
                 yield from self._await_connected()
 
-            yield from self._mopidy_ws.send_json({'jsonrpc': '2.0', 'id': 1, 'method': 'core.describe'})
-
             while True:
                 yield from self._run()
         except ConnectionClosed as e:
@@ -218,6 +216,11 @@ class SpotnetSlaveServer(object):
                             'uri': [uri]
                         }
                     }})
+
+            yield from self._mopidy_ws_send_json({
+                'jsonrpc': '2.0',
+                'id': 1,
+                'method': 'core.tracklist.get_tracks'})
 
     def _discover_master_server(self):
         """Run service discovery to get the master server address.
