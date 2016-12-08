@@ -107,8 +107,12 @@ class SpotnetSlaveClient(WebSocketWrapper):
 
         """
         track = self.track_queue.pop(position)
+        if not self.track_queue:
+            self.is_paused = True
+
         uri = track['uri']
-        yield from self._remove_uri(uri, position)
+        is_last_track = not self.track_queue
+        yield from self._remove_uri(uri, position, is_last_track=is_last_track)
 
     @asyncio.coroutine
     def _send_uri(self, uri, position):
@@ -129,7 +133,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
             }})
 
     @asyncio.coroutine
-    def _remove_uri(self, uri, position):
+    def _remove_uri(self, uri, position, is_last_track=False):
         """Coroutine to send a uri to remove from the slave's mopidy tracklist.
 
         Args:
@@ -142,7 +146,9 @@ class SpotnetSlaveClient(WebSocketWrapper):
             'sender': 'slave',
             'data': {
                 'uri': uri,
-                'position': position
+                'position': position,
+                'is-paused': self.is_paused,
+                'is-last-track': is_last_track
             }})
 
     def get_state(self):
