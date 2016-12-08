@@ -167,6 +167,8 @@ class SpotnetMasterServer(object):
                         yield from slave.send_track()
                 elif position == 'next':
                     slave.set_next_track(track)
+                    if not self.is_paused and len(slave.track_queue) == 1:
+                        yield from slave.send_track()
                 else:
                     raise ValueError(
                         'Invalid position key "{}" sent in "add-track" '
@@ -201,12 +203,45 @@ class SpotnetMasterServer(object):
                     if position == 0 and not slave.is_paused:
                         yield from slave.send_track()
 
-                yield from self.web_client_host_ws.send_slave_state(
-                    slave.get_state())
+                yield from self._send_slave_state(uuid)
 
                 self.logger.info(
                     'Sent updated state back to web client for slave with '
                     'UUID {}.'.format(uuid))
+            elif status == 'play-audio':
+                uuid = data['uuid']
+                slave = self.slave_dict_by_uuid[uuid]
+
+                self.logger.info('Received "play-audio" request from web '
+                                 'client with UUID {}.'.format(uuid))
+
+                yield from slave.send_play()
+
+                self.logger.info('Sent play request to slave with UUID {}'
+                                 .format(uuid))
+
+                slave.is_paused = False
+                yield from self._send_slave_state(uuid)
+
+                self.logger.info('Sent slave state for UUID {} back to web '
+                                 'client'.format(uuid))
+            elif status == 'pause-audio':
+                uuid = data['uuid']
+                slave = self.slave_dict_by_uuid[uuid]
+
+                self.logger.info('Received "pause-audio" request from web '
+                                 'client with UUID {}.'.format(uuid))
+
+                yield from slave.send_pause()
+
+                self.logger.info('Sent pause request to slave UUID {} back '
+                                 'to web client'.format(uuid))
+
+                slave.is_paused = True
+                yield from self._send_slave_state(uuid)
+
+                self.logger.info('Sent slave state for UUID {} back to web '
+                                 'client'.format(uuid))
             else:
                 raise ValueError(
                     'Invalid "status" key "{}" received from web client.'
@@ -251,6 +286,9 @@ class SpotnetMasterServer(object):
                     yield from self.web_client_host_ws.send_login_passed(
                         slave.uuid)
                     self.logger.info('Notified web client of passed login.')
+
+                yield from self.web_client_host_ws.send_slave_state(
+                    slave.get_state())
             elif status == 'login-failed':
                 self.logger.info('Login failed on slave with UUID {}.'
                                  .format(slave.uuid))
@@ -266,6 +304,13 @@ class SpotnetMasterServer(object):
                 raise ValueError('No "status" key in slave request.')
             else:
                 raise ValueError('Invalid "status" key in slave request.')
+
+    @asyncio.coroutine
+    def _send_slave_state(self, uuid):
+        """Coroutine to send slave's state to web client."""
+        slave = self.slave_dict_by_uuid[uuid]
+        yield from self.web_client_host_ws.send_slave_state(
+                    slave.get_state())
 
     @asyncio.coroutine
     def _advertise(self):

@@ -31,6 +31,7 @@ export default Ember.Service.extend({
    *   "uuid": string,
    *   "countedVotesForSkip": number,
    *   "isConnected": boolean,
+   *   "loginStatus": string, one of {'idle', 'failed', 'loading'},
    *   "name": string,
    *   "firstConnectedAt": isoformat string,
    *   "trackQueue": [{id: 'some id', uri: 'some uri'}, ...]
@@ -104,7 +105,9 @@ export default Ember.Service.extend({
    */
   onSocketMessage(event) {
     const resp = this.getResponse(event);
+    console.log(resp);
     const { status, sender, data } = resp;
+    let slave;
 
     if (sender !== 'master') {
       Ember.Logger.log('Invalid sender received on WebSocket connection.');
@@ -122,18 +125,25 @@ export default Ember.Service.extend({
         this.addSlave(data.slave);
         break;
       case 'remove-slave':
-        const { uuid } = data;
-        this.removeSlave(uuid);
+        this.removeSlave(data.uuid);
         break;
       case 'login-passed':
+        slave = this.get('slaves').findBy('uuid', data.uuid);
+        Ember.set(slave, 'loginStatus', 'idle');
+        Ember.set(slave, 'isConnected', true);
         Ember.Logger.log('Login passed!');
         break;
       case 'login-failed':
+        slave = this.get('slaves').findBy('uuid', data.uuid);
+        Ember.set(slave, 'loginStatus', 'failed');
+        Ember.set(slave, 'isConnected', false);
         Ember.Logger.log('Login failed!');
         break
       default:
         Ember.Logger.log('Received invalid status on master server ' +
                          'WebSocket connection.');
+
+      this.get('slaves').forEach((slave) => console.log(slave));
     }
   },
 
@@ -215,8 +225,7 @@ export default Ember.Service.extend({
     });
 
     const slave = this.get('slaves').findBy('uuid', uuid);
-    Ember.set(slave, 'isConnected', true);
-    Ember.set(slave, 'name', name);
+    Ember.set(slave, 'loginStatus', 'loading');
   },
 
   /**
@@ -287,6 +296,26 @@ export default Ember.Service.extend({
     });
   },
 
+  sendPlayAudio(uuid) {
+    this.wsSend({
+      status: 'play-audio',
+      sender: 'web-client',
+      data: {
+        uuid: uuid
+      }
+    });
+  },
+
+  sendPauseAudio(uuid) {
+    this.wsSend({
+      status: 'pause-audio',
+      sender: 'web-client',
+      data: {
+        uuid: uuid
+      }
+    });
+  },
+
   /**
    * Normalize a raw slave object sent from the master server.
    */
@@ -295,6 +324,7 @@ export default Ember.Service.extend({
         uuid: slaveObj.uuid,
         countedVotesForSkip: slaveObj['counted-votes-for-skip'],
         isConnected: slaveObj['is-connected'],
+        loginStatus: 'idle',
         isPaused: slaveObj['is-paused'],
         name: slaveObj.name,
         firstConnectedAt: slaveObj['first-connected-at'],

@@ -62,20 +62,26 @@ class SpotnetSlaveClient(WebSocketWrapper):
     @asyncio.coroutine
     def send_pause(self):
         """Coroutine to tell the slave server to pause audio playback."""
-        # TODO
-        pass
+        yield from self.send_json({
+            'status': 'play-audio',
+            'sender': 'master'})
 
     @asyncio.coroutine
     def send_play(self):
         """Coroutine to tell the slave server to resume audio playback."""
-        # TODO
-        pass
+        yield from self.send_json({
+            'status': 'play-audio',
+            'sender': 'master'})
 
     @asyncio.coroutine
     def send_track(self):
         """Coroutine to send the slave server the next track to play."""
-        # TODO
-        pass
+        yield from self.send_json({
+            'status': 'next-track',
+            'sender': 'master',
+            'data': {
+                'uri': self.track_queue[0]['uri']
+            }})
 
     def prepend_track(self, track):
         """Add a track to the beginnig of the queue."""

@@ -13,6 +13,31 @@
             </div>
           </div>
         </div>
+      {{else if (eq slave.loginStatus 'loading')}}
+        <div class="ui basic segment">
+          <div class="ui warning icon message">
+            <i class="notched circle loading icon"></i>
+            <div class="content">
+              <div class="header">
+                Just a second
+              </div>
+              <p>Setting everything up right now!</p>
+            </div>
+          </div>
+        </div>
+      {{else if (eq slave.loginStatus 'failed')}}
+        <div class="ui basic segment">
+          <div class="ui error icon message">
+            <i class="close icon" {{action 'setIdle' slave}}></i>
+            <i class="frown icon"></i>
+            <div class="content">
+              <div class="header">
+                Couldn't log you in
+              </div>
+              <p>Are you sure you entered the right Spotify credentials?</p>
+            </div>
+          </div>
+        </div>
       {{else}}
         <div class="ui padded-lr grid">
           <div class="centered row">

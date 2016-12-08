@@ -85,15 +85,15 @@ export default Ember.Component.extend({
   actions: {
 
     playCurrentTrack() {
-
-      console.log('Set playing called.')
-      // TODO
+      const slave = this.get('slave');
+      const uuid = Ember.get(slave, 'uuid');
+      this.get('spotnet').sendPlayAudio(uuid);
     },
 
     pauseCurrentTrack() {
-
-      console.log('Set paused called');
-      // TODO
+      const slave = this.get('slave');
+      const uuid = Ember.get(slave, 'uuid');
+      this.get('spotnet').sendPauseAudio(uuid);
     },
 
     /**
