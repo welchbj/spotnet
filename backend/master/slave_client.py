@@ -147,7 +147,6 @@ class SpotnetSlaveClient(WebSocketWrapper):
             'data': {
                 'uri': uri,
                 'position': position,
-                'is-paused': self.is_paused,
                 'is-last-track': is_last_track
             }})
 

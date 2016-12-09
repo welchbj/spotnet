@@ -18,6 +18,7 @@ class SpotnetSlaveServer(object):
         is_connected (bool): Boolean indicating whether this slave has
             successfully set up its Spotify credentials and is ready for
             playback.
+        is_paused (bool): Boolean flag indicating if audio playback is paused.
         mopidy_port (int): The port on which to run the mopidy process.
         logger (logging.Logger): A logger instance for this server.
 
@@ -30,6 +31,7 @@ class SpotnetSlaveServer(object):
     def __init__(self, do_discover, master_address=None, mopidy_port=8888):
         self.is_connected = False
         self.mopidy_port = mopidy_port
+        self.is_paused = True
         self.logger = get_configured_logger(SPOTNET_SLAVE_LOGGER_NAME)
 
         self._master_ws = WebSocketWrapper()
@@ -172,7 +174,7 @@ class SpotnetSlaveServer(object):
             master_recv.cancel()
             resp = mopidy_recv.result()
             self.logger.info('Received message from mopidy:')
-            print(json.dumps(resp, indent=2))
+            print(resp['method'])
         else:
             # received something from the master server
             mopidy_recv.cancel()
@@ -180,12 +182,18 @@ class SpotnetSlaveServer(object):
 
             status = resp['status']
             if status == 'play-audio':
+                self.logger.info('Received "play-audio" directive; passing '
+                                 'it on to mopidy and updating state.')
                 yield from self._send_play_playback()
+                self.is_paused = False
             elif status == 'pause-audio':
+                self.logger.info('Received "pause-audio" directive; passing '
+                                 'it on to mopidy and updating state.')
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
                     'method': 'core.playback.pause'})
+                self.is_paused = True
             elif status == 'add-track':
                 data = resp['data']
                 uri = data['uri']
@@ -206,12 +214,12 @@ class SpotnetSlaveServer(object):
                 data = resp['data']
                 uri = data['uri']
                 position = data['position']
-                is_paused = data['is-paused']
                 is_last_track = data['is-last-track']
 
                 self.logger.info('Received request to remove track with '
                                  'uri {0} and position {1}.'
                                  .format(uri, position))
+
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
@@ -228,7 +236,7 @@ class SpotnetSlaveServer(object):
                     if not is_last_track:
                         yield from self._send_next_track()
 
-                        if not is_paused:
+                        if not self.is_paused:
                             yield from self._send_play_playback()
 
             yield from self._mopidy_ws.send_json({
