@@ -64,14 +64,16 @@ class SpotnetSlaveClient(WebSocketWrapper):
         """Coroutine to tell the slave server to pause audio playback."""
         yield from self.send_json({
             'status': 'pause-audio',
-            'sender': 'master'})
+            'sender': 'master'
+        })
 
     @asyncio.coroutine
     def send_play(self):
         """Coroutine to tell the slave server to resume audio playback."""
         yield from self.send_json({
             'status': 'play-audio',
-            'sender': 'master'})
+            'sender': 'master'
+        })
 
     @asyncio.coroutine
     def add_track(self, track, position):
@@ -88,17 +90,19 @@ class SpotnetSlaveClient(WebSocketWrapper):
                 self.track_queue.append(track)
             elif self.is_paused:
                 self.track_queue = [track] + self.track_queue
+                yield from self._send_clear_tracks()
             else:
                 self.track_queue[0] = track
-            yield from self._send_uri(uri, 0)
+                yield from self._send_clear_tracks()
+
+            yield from self._send_add_track(uri)
         elif position == 'next':
             if not self.track_queue:
                 self.track_queue.append(track)
-                yield from self._send_uri(uri, 0)
+                yield from self._send_add_track(uri)
             else:
                 self.track_queue = (self.track_queue[:1] + [track] +
                                     self.track_queue[1:])
-                yield from self._send_uri(uri, 1)
 
     @asyncio.coroutine
     def remove_track(self, position):
@@ -108,49 +112,52 @@ class SpotnetSlaveClient(WebSocketWrapper):
             position (int): The position in the queue to remove.
 
         """
-        track = self.track_queue.pop(position)
-        if not self.track_queue:
-            self.is_paused = True
+        self.track_queue.pop(position)
+        yield from self._send_clear_tracks()
 
-        uri = track['uri']
-        is_last_track = not self.track_queue
-        yield from self._remove_uri(uri, position, is_last_track=is_last_track)
+        if not self.is_paused:
+            if not self.track_queue:
+                self.is_paused = True
+                yield from self._send_pause_audio()
+            elif position == 0:
+                new_uri = self.track_queue[0]['uri']
+                yield from self._send_add_track(new_uri)
+                yield from self._send_play_audio()
 
     @asyncio.coroutine
-    def _send_uri(self, uri, position):
-        """Coroutine to send a URI at a specified position.
+    def _send_play_audio(self):
+        """Coroutine to tell slave to play audio."""
+        yield from self.send_json({
+            'status': 'play-audio',
+            'sender': 'master'
+        })
 
-        Args:
-            uri (str): The Spotify track uri.
-            position (int): The position in the slave mopidy queue to insert
-                the track.
+    @asyncio.coroutine
+    def _send_pause_audio(self):
+        """Coroutine to tell slave to pause audio."""
+        yield from self.send_json({
+            'status': 'pause-audio',
+            'sender': 'master'
+        })
 
-        """
+    @asyncio.coroutine
+    def _send_clear_tracks(self):
+        """Coroutine to tell slave to clear tracks."""
+        yield from self.send_json({
+            'status': 'clear-tracks',
+            'sender': 'master'
+        })
+
+    @asyncio.coroutine
+    def _send_add_track(self, uri):
+        """Coroutine to tell slave to add a track by uri."""
         yield from self.send_json({
             'status': 'add-track',
             'sender': 'master',
             'data': {
-                'uri': uri,
-                'position': position
-            }})
-
-    @asyncio.coroutine
-    def _remove_uri(self, uri, position, is_last_track=False):
-        """Coroutine to send a uri to remove from the slave's mopidy tracklist.
-
-        Args:
-            uri (str): The uri to remove.
-            position (int): The position of the song to remove.
-
-        """
-        yield from self.send_json({
-            'status': 'remove-track',
-            'sender': 'master',
-            'data': {
-                'uri': uri,
-                'position': position,
-                'is-last-track': is_last_track
-            }})
+                'uri': uri
+            }
+        })
 
     def get_state(self):
         """Return the state of this slave as a JSON-like dict.
