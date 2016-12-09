@@ -181,10 +181,10 @@ class SpotnetSlaveServer(object):
                     self.logger.info('Current track has finished; notifying '
                                      'master server.')
 
-                yield from self.send_json({
-                    'status': 'track-ended',
-                    'sender': 'slave'
-                })
+                    yield from self._master_ws.send_json({
+                        'status': 'track-ended',
+                        'sender': 'slave'
+                    })
         else:
             # received something from the master server
             mopidy_recv.cancel()
