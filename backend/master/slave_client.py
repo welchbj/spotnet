@@ -7,6 +7,9 @@ import uuid
 from ..utils import WebSocketWrapper
 
 
+DELAY = 0.1
+
+
 class SpotnetSlaveClient(WebSocketWrapper):
 
     """A client for interacting with a Spotnet slave server.
@@ -145,6 +148,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
     @asyncio.coroutine
     def _send_play_audio(self):
         """Coroutine to tell slave to play audio."""
+        yield from asyncio.sleep(DELAY)
         yield from self.send_json({
             'status': 'play-audio',
             'sender': 'master'
@@ -153,6 +157,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
     @asyncio.coroutine
     def _send_pause_audio(self):
         """Coroutine to tell slave to pause audio."""
+        yield from asyncio.sleep(DELAY)
         yield from self.send_json({
             'status': 'pause-audio',
             'sender': 'master'
@@ -161,6 +166,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
     @asyncio.coroutine
     def _send_stop_playback(self):
         """Coroutine to tell slave to stop playback."""
+        yield from asyncio.sleep(DELAY)
         yield from self.send_json({
             'status': 'stop-playback',
             'sender': 'master'
@@ -169,6 +175,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
     @asyncio.coroutine
     def _send_clear_tracks(self):
         """Coroutine to tell slave to clear tracks."""
+        yield from asyncio.sleep(DELAY)
         yield from self.send_json({
             'status': 'clear-tracks',
             'sender': 'master'
@@ -177,6 +184,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
     @asyncio.coroutine
     def _send_add_track(self, uri):
         """Coroutine to tell slave to add a track by uri."""
+        yield from asyncio.sleep(DELAY)
         yield from self.send_json({
             'status': 'add-track',
             'sender': 'master',
