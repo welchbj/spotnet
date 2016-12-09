@@ -128,7 +128,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
         """
         yield from self.send_json({
             'status': 'add-track',
-            'sender': 'slave',
+            'sender': 'master',
             'data': {
                 'uri': uri,
                 'position': position
@@ -145,7 +145,7 @@ class SpotnetSlaveClient(WebSocketWrapper):
         """
         yield from self.send_json({
             'status': 'remove-track',
-            'sender': 'slave',
+            'sender': 'master',
             'data': {
                 'uri': uri,
                 'position': position,

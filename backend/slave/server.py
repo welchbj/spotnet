@@ -37,7 +37,6 @@ class SpotnetSlaveServer(object):
         self._master_ws = WebSocketWrapper()
         self._mopidy_ws = WebSocketWrapper()
         self._mopidy_proc = None
-        self._ignore_next_track_end_count = 0
 
         if do_discover:
             self.master_address = self._discover_master_server()
@@ -189,17 +188,16 @@ class SpotnetSlaveServer(object):
                 self.logger.info('Received "{}" event from mopidy'
                                  .format(event))
 
-                if event == 'track_playback_ended':
-                    if not self._ignore_next_track_end_count:
-                        yield from self._master_ws.send_json({
-                            'status': 'track-ended',
-                            'send': 'slave'})
-                        self.logger.info('Notified master that the current track '
-                                         'ended.')
-                    else:
-                        self.logger.info('Ignored "track_playback_ended" '
-                                         'event.')
-                        self._ignore_next_track_end_count -= 1
+                # if event == 'track_playback_ended':
+                #     if not self._ignore_next_track_end_count:
+                #         yield from self._master_ws.send_json({
+                #             'status': 'track-ended',
+                #             'send': 'slave'})
+                #         self.logger.info('Notified master that the current '
+                #                          'track ended.')
+                #     else:
+                #         self.logger.info('Ignored "track_playback_ended" '
+                #                          'event.')
         else:
             # received something from the master server
             mopidy_recv.cancel()
@@ -209,15 +207,16 @@ class SpotnetSlaveServer(object):
             if status == 'play-audio':
                 self.logger.info('Received "play-audio" directive; passing '
                                  'it on to mopidy and updating state.')
+
                 yield from self._send_play_playback()
+
                 self.is_paused = False
             elif status == 'pause-audio':
                 self.logger.info('Received "pause-audio" directive; passing '
                                  'it on to mopidy and updating state.')
-                yield from self._mopidy_ws.send_json({
-                    'jsonrpc': '2.0',
-                    'id': 1,
-                    'method': 'core.playback.pause'})
+
+                yield from self._send_pause_playback()
+
                 self.is_paused = True
             elif status == 'add-track':
                 data = resp['data']
@@ -229,7 +228,6 @@ class SpotnetSlaveServer(object):
                                  .format(uri, position))
 
                 if position == 0 and not self.is_paused:
-                    self._ignore_next_track_end_count += 2
                     yield from self._send_stop_playback()
                     yield from self._send_uri(uri, 1)
                     yield from self._send_next_track()
@@ -257,19 +255,15 @@ class SpotnetSlaveServer(object):
                     }})
 
                 if position == 0:
-                    if not self.is_paused:
-                        self._ignore_next_track_end_count += 1
-
                     yield from self._send_stop_playback()
 
-                    if not is_last_track:
+                    if is_last_track:
+                        self.is_paused = True
+                    else:
                         yield from self._send_next_track()
 
                         if not self.is_paused:
                             yield from self._send_play_playback()
-
-                    else:
-                        self.is_paused = True
 
             yield from self._mopidy_ws.send_json({
                 'jsonrpc': '2.0',
@@ -291,6 +285,14 @@ class SpotnetSlaveServer(object):
             'jsonrpc': '2.0',
             'id': 1,
             'method': 'core.playback.stop'})
+
+    @asyncio.coroutine
+    def _send_pause_playback(self):
+        """Coroutine to tell mopidy to pause playback."""
+        yield from self._mopidy_ws.send_json({
+                    'jsonrpc': '2.0',
+                    'id': 1,
+                    'method': 'core.playback.pause'})
 
     @asyncio.coroutine
     def _send_play_playback(self):
