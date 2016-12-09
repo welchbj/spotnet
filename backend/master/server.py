@@ -278,7 +278,7 @@ class SpotnetMasterServer(object):
                 self.logger.info('Received "track-ended" indication from '
                                  'slave with UUID {}.'.format(slave.uuid))
 
-                yield from slave.remove_track(0)
+                yield from slave.remove_track(0, from_transition=True)
                 yield from self._send_slave_state(slave.uuid)
             elif status is None:
                 raise ValueError('No "status" key in slave request.')

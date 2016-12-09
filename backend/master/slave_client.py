@@ -88,14 +88,17 @@ class SpotnetSlaveClient(WebSocketWrapper):
         if position == 'current':
             if not self.track_queue:
                 self.track_queue.append(track)
+                yield from self._send_add_track(uri)
             elif self.is_paused:
                 self.track_queue = [track] + self.track_queue
                 yield from self._send_clear_tracks()
+                yield from self._send_add_track(uri)
             else:
                 self.track_queue[0] = track
+                yield from self._send_pause_audio()
                 yield from self._send_clear_tracks()
-
-            yield from self._send_add_track(uri)
+                yield from self._send_add_track(uri)
+                yield from self._send_play_audio()
         elif position == 'next':
             if not self.track_queue:
                 self.track_queue.append(track)
@@ -105,12 +108,13 @@ class SpotnetSlaveClient(WebSocketWrapper):
                                     self.track_queue[1:])
 
     @asyncio.coroutine
-    def remove_track(self, position):
+    def remove_track(self, position, from_transition=False):
         """Coroutine to remove a track from the mopidy tracklist.
 
         Args:
             position (int): The position in the queue to remove.
-
+            from_transition (bool): Indicating if this call is resultant from
+                the end of a track into another.
         """
         self.track_queue.pop(position)
 
@@ -128,6 +132,11 @@ class SpotnetSlaveClient(WebSocketWrapper):
                     self.is_paused = True
                     yield from self._send_clear_tracks()
                 else:
+                    if from_transition:
+                        yield from self._send_stop_playback()
+                    else:
+                        yield from self._send_pause_audio()
+
                     yield from self._send_clear_tracks()
                     new_uri = self.track_queue[0]['uri']
                     yield from self._send_add_track(new_uri)
@@ -146,6 +155,14 @@ class SpotnetSlaveClient(WebSocketWrapper):
         """Coroutine to tell slave to pause audio."""
         yield from self.send_json({
             'status': 'pause-audio',
+            'sender': 'master'
+        })
+
+    @asyncio.coroutine
+    def _send_stop_playback(self):
+        """Coroutine to tell slave to stop playback."""
+        yield from self.send_json({
+            'status': 'stop-playback',
             'sender': 'master'
         })
 

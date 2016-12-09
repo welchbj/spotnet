@@ -201,6 +201,11 @@ class SpotnetSlaveServer(object):
                                  'it on to mopidy and updating state.')
 
                 yield from self._send_pause_playback()
+            elif status == 'stop-playback':
+                self.logger.info('Received "stop-playback" directive; '
+                                 'passing it on to mopidy.')
+
+                yield from self._send_stop_playback()
             elif status == 'add-track':
                 data = resp['data']
                 uri = data['uri']
