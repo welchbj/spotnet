@@ -37,6 +37,7 @@ class SpotnetSlaveServer(object):
         self._master_ws = WebSocketWrapper()
         self._mopidy_ws = WebSocketWrapper()
         self._mopidy_proc = None
+        self._ignore_next_track_end = False
 
         if do_discover:
             self.master_address = self._discover_master_server()
@@ -180,12 +181,15 @@ class SpotnetSlaveServer(object):
                                  .format(event))
 
                 if event == 'track_playback_ended':
-                    # need to handle song ended
-                    yield from self._master_ws.send_json({
-                        'status': 'track-ended',
-                        'send': 'slave'})
-                    self.logger.info('Notified master that the current track '
-                                     'ended.')
+                    if not self._ignore_next_track_end:
+                        yield from self._master_ws.send_json({
+                            'status': 'track-ended',
+                            'send': 'slave'})
+                        self.logger.info('Notified master that the current track '
+                                         'ended.')
+                    else:
+                        self.logger.info('Ignored "track_playback_ended" event')
+                        self._ignore_next_track_end = False
         else:
             # received something from the master server
             mopidy_recv.cancel()
@@ -213,6 +217,7 @@ class SpotnetSlaveServer(object):
                 self.logger.info('Received request to add track with '
                                  'uri {0} and position {1}.'
                                  .format(uri, position))
+
                 yield from self._mopidy_ws.send_json({
                     'jsonrpc': '2.0',
                     'id': 1,
@@ -221,6 +226,12 @@ class SpotnetSlaveServer(object):
                         'uris': [uri],
                         'at_position': position
                     }})
+
+                if position == 0 and not self.is_paused:
+                    self._ignore_next_track_end = True
+                    yield from self._send_stop_playback()
+                    yield from self._send_next_track()
+                    yield from self._send_play_playback()
             elif status == 'remove-track':
                 data = resp['data']
                 uri = data['uri']
@@ -242,6 +253,9 @@ class SpotnetSlaveServer(object):
                     }})
 
                 if position == 0:
+                    if not self.is_paused:
+                        self._ignore_next_track_end = True
+
                     yield from self._send_stop_playback()
 
                     if not is_last_track:
