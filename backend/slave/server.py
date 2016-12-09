@@ -173,8 +173,11 @@ class SpotnetSlaveServer(object):
             # received something from the mopidy process
             master_recv.cancel()
             resp = mopidy_recv.result()
-            self.logger.info('Received message from mopidy:')
-            print(resp['method'])
+            event = resp.get('event')
+
+            if event is not None:
+                self.logger.info('Received "{}" event from mopidy'
+                                 .format(event))
         else:
             # received something from the master server
             mopidy_recv.cancel()
