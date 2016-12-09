@@ -175,7 +175,7 @@ class SpotnetSlaveServer(object):
             master_recv.cancel()
             resp = mopidy_recv.result()
             event = resp.get('event')
-            result = resp.get('result')            
+            result = resp.get('result')
 
             if result is not None:
                 if not result:
@@ -227,20 +227,14 @@ class SpotnetSlaveServer(object):
                                  'uri {0} and position {1}.'
                                  .format(uri, position))
 
-                yield from self._mopidy_ws.send_json({
-                    'jsonrpc': '2.0',
-                    'id': 1,
-                    'method': 'core.tracklist.add',
-                    'params': {
-                        'uris': [uri],
-                        'at_position': position
-                    }})
-
                 if position == 0 and not self.is_paused:
                     self._ignore_next_track_end = True
                     yield from self._send_stop_playback()
+                    yield from self._send_uri(uri, 1)
                     yield from self._send_next_track()
                     yield from self._send_play_playback()
+                else:
+                    yield from self._send_uri(uri, position)
             elif status == 'remove-track':
                 data = resp['data']
                 uri = data['uri']
@@ -307,6 +301,24 @@ class SpotnetSlaveServer(object):
             'params': {
                 'tl_track': None,
                 'tlid': None
+            }})
+
+    @asyncio.coroutine
+    def _send_uri(self, uri, position):
+        """Coroutine to send a uri at a specified position to mopidy.
+
+        Args:
+            uri (str): The uri of the track to add.
+            position (int): The position at which to add the track.
+
+        """
+        yield from self._mopidy_ws.send_json({
+            'jsonrpc': '2.0',
+            'id': 1,
+            'method': 'core.tracklist.add',
+            'params': {
+                'uris': [uri],
+                'at_position': position
             }})
 
     def _discover_master_server(self):

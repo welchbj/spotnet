@@ -86,8 +86,10 @@ class SpotnetSlaveClient(WebSocketWrapper):
         if position == 'current':
             if not self.track_queue:
                 self.track_queue.append(track)
-            else:
+            elif self.is_paused:
                 self.track_queue = [track] + self.track_queue
+            else:
+                self.track_queue[0] = track
             yield from self._send_uri(uri, 0)
         elif position == 'next':
             if not self.track_queue:

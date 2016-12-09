@@ -275,6 +275,8 @@ class SpotnetMasterServer(object):
                         slave.uuid)
                     self.logger.info('Notified web client of failed login.')
             elif status == 'track-ended':
+                self.logger.info('Received "track-ended" indication from '
+                                 'slave with UUID {}.'.format(slave.uuid))
                 slave.track_queue.pop(0)
                 yield from self._send_slave_state(slave.uuid)
             elif status is None:
