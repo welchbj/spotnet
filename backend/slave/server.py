@@ -180,8 +180,8 @@ class SpotnetSlaveServer(object):
             if result is not None:
                 if not result:
                     self.logger.info('No tracks in mopidy tracklist.')
-                elif 'track' in result[0].keys():
-                    track_names = (track['track']['name'] for track in result)
+                elif 'name' in result[0].keys():
+                    track_names = (track['name'] for track in result)
                     self.logger.info('mopidy tracklist:')
                     for name in track_names:
                         self.logger.info(name)
@@ -272,6 +272,9 @@ class SpotnetSlaveServer(object):
 
                         if not self.is_paused:
                             yield from self._send_play_playback()
+
+                    else:
+                        self.is_paused = True
 
             yield from self._mopidy_ws.send_json({
                 'jsonrpc': '2.0',
