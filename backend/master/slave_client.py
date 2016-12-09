@@ -113,16 +113,25 @@ class SpotnetSlaveClient(WebSocketWrapper):
 
         """
         self.track_queue.pop(position)
-        yield from self._send_clear_tracks()
 
-        if not self.is_paused:
-            if not self.track_queue:
-                self.is_paused = True
-                yield from self._send_pause_audio()
-            elif position == 0:
-                new_uri = self.track_queue[0]['uri']
-                yield from self._send_add_track(new_uri)
-                yield from self._send_play_audio()
+        if position == 0:
+            if self.is_paused:
+                yield from self._send_clear_tracks()
+                if self.track_queue:
+                    # send the next uri to be played (but we are still paused)
+                    new_uri = self.track_queue[0]['uri']
+                    yield from self._send_add_track(new_uri)
+            else:
+                # was playing a track
+                if not self.track_queue:
+                    yield from self._send_pause_audio()
+                    self.is_paused = True
+                    yield from self._send_clear_tracks()
+                else:
+                    yield from self._send_clear_tracks()
+                    new_uri = self.track_queue[0]['uri']
+                    yield from self._send_add_track(new_uri)
+                    yield from self._send_play_audio()
 
     @asyncio.coroutine
     def _send_play_audio(self):
