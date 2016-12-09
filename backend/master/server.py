@@ -274,6 +274,9 @@ class SpotnetMasterServer(object):
                     yield from self.web_client_host_ws.send_login_failed(
                         slave.uuid)
                     self.logger.info('Notified web client of failed login.')
+            elif status == 'track-ended':
+                slave.track_queue.pop(0)
+                yield from self._send_slave_state(slave.uuid)
             elif status is None:
                 raise ValueError('No "status" key in slave request.')
             else:

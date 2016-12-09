@@ -178,6 +178,14 @@ class SpotnetSlaveServer(object):
             if event is not None:
                 self.logger.info('Received "{}" event from mopidy'
                                  .format(event))
+
+                if event == 'track_playback_ended':
+                    # need to handle song ended
+                    yield from self._master_ws.send_json({
+                        'status': 'track-ended',
+                        'send': 'slave'})
+                    self.logger.info('Notified master that the current track '
+                                     'ended.')
         else:
             # received something from the master server
             mopidy_recv.cancel()
