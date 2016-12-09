@@ -175,8 +175,17 @@ class SpotnetSlaveServer(object):
             master_recv.cancel()
             resp = mopidy_recv.result()
             event = resp.get('event')
+            result = resp.get('result')            
 
-            if event is not None:
+            if result is not None:
+                if not result:
+                    self.logger.info('No tracks in mopidy tracklist.')
+                elif 'track' in result[0].keys():
+                    track_names = (track['track']['name'] for track in result)
+                    self.logger.info('mopidy tracklist:')
+                    for name in track_names:
+                        self.logger.info(name)
+            elif event is not None:
                 self.logger.info('Received "{}" event from mopidy'
                                  .format(event))
 
