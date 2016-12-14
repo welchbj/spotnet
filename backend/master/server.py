@@ -20,7 +20,6 @@ class SpotnetMasterServer(object):
         port (int): The port on which to run this server.
         connected_slaves (Dict{str:SpotnetSlaveClient}): TODO A dict that maps
             connected slaves' names to their client instance.
-        keyphrase (str): The keyphrase required to connect to this server.
         do_advertise (bool): Boolean flag indicating whether or not to
             advertise this service via Zeroconf.
         voting_enabled (bool): Boolean flag indicating whether to allow for
@@ -42,10 +41,9 @@ class SpotnetMasterServer(object):
 
     """
 
-    def __init__(self, port, keyphrase, do_advertise, voting_enabled,
+    def __init__(self, port, do_advertise, voting_enabled,
                  votes_for_skip):
         self.port = port
-        self.keyphrase = keyphrase
         self.do_advertise = do_advertise
         self.voting_enabled = voting_enabled
         self.votes_for_skip = votes_for_skip

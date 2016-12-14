@@ -33,15 +33,6 @@ def get_parsed_args(args=None):
         help='The port on which to run the server.')
 
     parser.add_argument(
-        '--keyphrase',
-        dest='keyphrase',
-        action='store',
-        type=str,
-        required=True,
-        help='The keyphrase required to achieve permissions from the web\n'
-             'client.')
-
-    parser.add_argument(
         '--advertise',
         dest='do_advertise',
         action='store_true',
@@ -83,12 +74,11 @@ def main():
         opts = get_parsed_args()
 
         port = opts.port
-        keyphrase = opts.keyphrase
         do_advertise = opts.do_advertise
         voting_enabled = opts.voting_enabled
         votes_for_skip = opts.votes_for_skip
 
-        server = SpotnetMasterServer(port, keyphrase, do_advertise,
+        server = SpotnetMasterServer(port, do_advertise,
                                      voting_enabled, votes_for_skip)
 
         run_forever = server.get_run_forever_coro()
