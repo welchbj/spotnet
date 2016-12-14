@@ -15,7 +15,7 @@ Spotnet
 Synopsis
 ========
 
-TODO
+Spotnet is an application for playing Spotify tunes on a network of Raspberry Pis, managed by an Ember.js web application. This is group 11's final project for Virginia Tech's ECE 4564 course.
 
 ======================================
 Setting up the Development Environment
@@ -130,9 +130,7 @@ After retrieval, the access token should be valid for one hour. While Spotnet ma
 Special Thanks
 ==============
 
-Kia: Absolutely nothing
-Julian: Absolutely nothing
-Paul: Absolutely nothing
+Special thanks goes to Kia, Julian, and Paul. Without their precise amount of effort, this project would have become sheer, unintelligible garbage.
 
 =======
 License
