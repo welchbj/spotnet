@@ -29,6 +29,17 @@ Start out by cloning this reposity::
 
 You will also have to set up an application on `Spotify's applications page`_.
 
+Mopidy
+------
+
+Run the following commands::
+
+    $ wget -q -O - https://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
+    $ sudo wget -q -O /etc/apt/sources.list.d/mopidy.list https://apt.mopidy.com/jessie.list
+    $ sudo apt-get update
+    $ sudo apt-get install mopidy
+    $ sudo apt-get install mopidy-spotify
+
 The Backend
 -----------
 There a few things to install to get the backend up and running. First, make sure to have Python 3.5 installed. Go to the `Python downloads page`_ to get it. It's also recommended that you use `virtualenv`_ to manage Python dependencies. `virtualenvwrapper`_ makes life easier, too. Once you've set these up, make a new virtual environment for spotnet::
@@ -115,15 +126,13 @@ The access token is written to the browser's local storage in order to survive p
 
 After retrieval, the access token should be valid for one hour. While Spotnet makes no attempt to refresh this token (nor does there exist the ability to do so in the `Implicit Grant`_ authentication flow), the application will invalidate the current token and redirect the user back to the landing page whenever a network request fails. A message on the landing page prompts the user to attempt re-connecting their account, which will solve the problem of an expired token. This strategy should also work to handle the case where a user manually navigates to the /auth route and specifies their own (invalid) token.
 
-The Backend
------------
-TODO
-
 ==============
 Special Thanks
 ==============
 
-TODO
+Kia: Absolutely nothing
+Julian: Absolutely nothing
+Paul: Absolutely nothing
 
 =======
 License
